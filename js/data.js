@@ -101,6 +101,21 @@ function buildSeedUsers() {
       status: 'INSTITUCIONAL',
       createdAt: '2026-07-01',
       lastLogin: '2026-11-18 07:30'
+    },
+    {
+      id: 'USR-ADM-01',
+      role: 'ADMINISTRADOR',
+      name: 'Administrador General del Sistema',
+      document: '1091000001',
+      email: 'admin@esquemavet.co',
+      phone: '3150009999',
+      address: 'Centro de Gestión Tecnológica UFPSO, Ocaña',
+      passwordHash: hash('AdminOcana2026*'),
+      legacyPass: '123456',
+      apiToken: 'tok_live_ocana_9f8e7d6c5b4a3210_ufpso',
+      status: 'SUPERADMIN',
+      createdAt: '2026-07-01',
+      lastLogin: '2026-11-21 08:30'
     }
   ];
 }
@@ -473,6 +488,14 @@ const DataStore = {
     }
     try {
       const parsed = JSON.parse(raw);
+      // Asegurar que exista el perfil Administrador si se cargó una base previa en localStorage
+      if (Array.isArray(parsed.users) && !parsed.users.some(u => u.role === 'ADMINISTRADOR')) {
+        const seedAdmin = buildSeedUsers().find(u => u.role === 'ADMINISTRADOR');
+        if (seedAdmin) {
+          parsed.users.push(seedAdmin);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+      }
       // Asegurar que las mascotas tengan coordenadas para el mapa de Ocaña
       if (Array.isArray(parsed.pets)) {
         parsed.pets.forEach((p, idx) => {

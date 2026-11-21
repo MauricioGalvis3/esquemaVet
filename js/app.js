@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * EsquemaVet Ocaña - Controlador Principal de Producción (Feria de Proyectos)
- * Gestión Clínica Veterinaria, API Pública, Carnet QR Real y Mapa Ocaña
+ * EsquemaVet Ocaña - Controlador Principal de Producción
+ * Roles: Propietario, Médico Veterinario, Salud Pública y Administrador
  * ============================================================================
  */
 
@@ -14,6 +14,7 @@ const App = {
   leafletMap: null,
   leafletMarkersLayer: null,
   lastApiConsoleJson: '',
+  adminSelectedCollection: 'usuarios_sistema',
   charts: {
     dashboardStatus: null,
     epiSpecies: null
@@ -22,7 +23,6 @@ const App = {
   init() {
     this.db = window.DataStore.getData();
 
-    // Comprobar sesión persistente (Recordarme) o de pestaña
     const savedUserId =
       localStorage.getItem('ESQUEMAVET_PERSISTENT_USER_ID') ||
       sessionStorage.getItem('ESQUEMAVET_ACTIVE_USER_ID');
@@ -72,7 +72,6 @@ const App = {
   },
 
   bindGlobalEvents() {
-    // 1. Inicio de sesión con verificación criptográfica de credenciales
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
       loginForm.addEventListener('submit', (e) => {
@@ -81,7 +80,6 @@ const App = {
       });
     }
 
-    // 2. Registro de nuevos usuarios con credenciales almacenables y comprobables
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
       registerForm.addEventListener('submit', (e) => {
@@ -90,7 +88,6 @@ const App = {
       });
     }
 
-    // Medidor de fortaleza de contraseña en tiempo real durante el registro
     const regPassInput = document.getElementById('reg-password');
     if (regPassInput) {
       regPassInput.addEventListener('input', (e) => {
@@ -98,7 +95,6 @@ const App = {
       });
     }
 
-    // 3. Registro de nueva mascota y enlace con propietario
     const petForm = document.getElementById('form-register-pet');
     if (petForm) {
       petForm.addEventListener('submit', (e) => {
@@ -119,7 +115,6 @@ const App = {
       });
     }
 
-    // 4. Registro de aplicación de biológico (Vacunación / Desparasitación)
     const vacForm = document.getElementById('form-register-vaccine');
     if (vacForm) {
       vacForm.addEventListener('submit', (e) => {
@@ -135,7 +130,6 @@ const App = {
       });
     }
 
-    // 5. Actualización de perfil personal y cambio de contraseña comprobable
     const profileForm = document.getElementById('form-update-profile');
     if (profileForm) {
       profileForm.addEventListener('submit', (e) => {
@@ -152,7 +146,6 @@ const App = {
       });
     }
 
-    // 6. Registro presencial de propietario en consultorio veterinario
     const ownerByVetForm = document.getElementById('form-vet-create-owner');
     if (ownerByVetForm) {
       ownerByVetForm.addEventListener('submit', (e) => {
@@ -161,7 +154,6 @@ const App = {
       });
     }
 
-    // 7. Configuración de conexión Google Cloud & Webhook API
     const cloudConfigForm = document.getElementById('form-cloud-config');
     if (cloudConfigForm) {
       cloudConfigForm.addEventListener('submit', (e) => {
@@ -170,7 +162,6 @@ const App = {
       });
     }
 
-    // 8. Importación de respaldo JSON desde archivo
     const backupFileInput = document.getElementById('backup-file-input');
     if (backupFileInput) {
       backupFileInput.addEventListener('change', (e) => {
@@ -178,7 +169,6 @@ const App = {
       });
     }
 
-    // 9. Filtros de directorio de mascotas en tiempo real
     const searchInput = document.getElementById('directory-search-input');
     if (searchInput) {
       searchInput.addEventListener('input', () => {
@@ -193,7 +183,6 @@ const App = {
       });
     }
 
-    // 10. Enter en el buscador público de la portada
     const landingVerifyInput = document.getElementById('landing-public-verify-input');
     if (landingVerifyInput) {
       landingVerifyInput.addEventListener('keydown', (e) => {
@@ -207,23 +196,21 @@ const App = {
 
   /**
    * ==========================================================================
-   * Telemetría Biometeorológica en Tiempo Real (Open-Meteo REST API Ocaña)
+   * Condiciones Ambientales y Recomendación Preventiva en Ocaña
    * ==========================================================================
    */
   async refreshWeatherTelemetry(showNotice = false) {
     if (!window.PublicAPIConnector) return;
     const weather = await window.PublicAPIConnector.fetchOcanaBiometeorology(showNotice);
 
-    // 1. Actualizar píldora en la portada
     const authPill = document.getElementById('auth-weather-pill');
     if (authPill) {
       authPill.innerHTML = `
         <span class="w-2 h-2 rounded-full ${weather.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span>
-        <span>Ocaña API: <strong>${weather.temperatureC}°C</strong> • Hum: ${weather.humidityPercent}% • Riesgo Vectorial: <strong>${weather.vectorRisk.level}</strong></span>
+        <span>Clima Ocaña: <strong>${weather.temperatureC}°C</strong> • Humedad: ${weather.humidityPercent}%</span>
       `;
     }
 
-    // 2. Actualizar tarjeta lateral
     const sidebarWeather = document.getElementById('sidebar-weather-body');
     if (sidebarWeather) {
       sidebarWeather.innerHTML = `
@@ -237,39 +224,35 @@ const App = {
             <div class="text-slate-400">Viento: ${weather.windKmh} km/h</div>
           </div>
         </div>
-        <div class="mt-2 p-2 rounded-xl border text-[11px] ${weather.vectorRisk.lightBadgeClass}">
-          <div class="font-bold">Riesgo Vectores: ${weather.vectorRisk.level}</div>
+        <div class="mt-2.5 p-2.5 rounded-xl border text-[11px] ${weather.vectorRisk.lightBadgeClass}">
+          <div class="font-bold">Alerta Ectoparásitos: ${weather.vectorRisk.level}</div>
           <div class="mt-0.5 leading-snug">${weather.vectorRisk.recommendation}</div>
-        </div>
-        <div class="mt-1.5 text-[10px] font-mono text-slate-400 flex justify-between">
-          <span>Open-Meteo REST</span>
-          <span>${weather.latencyMs} ms</span>
         </div>
       `;
     }
 
-    // 3. Actualizar banner en Panel de Control
     const dashWeather = document.getElementById('dashboard-api-weather-banner');
     if (dashWeather) {
+      const isAdmin = this.currentUser && this.currentUser.role === 'ADMINISTRADOR';
       dashWeather.innerHTML = `
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div class="flex items-start gap-3">
             <div class="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-lg shrink-0 font-bold">
-              🌡️
+              🌤️
             </div>
             <div>
               <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-teal-800">Telemetría Biometeorológica Ocaña (API Open-Meteo en Vivo)</span>
-                <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${weather.coordinates} • ${weather.latencyMs} ms</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-teal-800">Estado Ambiental y Prevención en Ocaña</span>
+                ${isAdmin ? `<span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${weather.coordinates} • ${weather.latencyMs} ms</span>` : ''}
               </div>
               <p class="text-xs text-slate-600 mt-1">
-                Temperatura actual: <strong>${weather.temperatureC}°C</strong> (${weather.weatherDescription}) • Humedad relativa: <strong>${weather.humidityPercent}%</strong> • ${weather.vectorRisk.recommendation}
+                Clima actual en el municipio: <strong>${weather.temperatureC}°C</strong> (${weather.weatherDescription}, humedad del <strong>${weather.humidityPercent}%</strong>). ${weather.vectorRisk.recommendation}
               </p>
             </div>
           </div>
           <div class="shrink-0">
             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${weather.vectorRisk.lightBadgeClass}">
-              <span>Riesgo Vectorial: ${weather.vectorRisk.level}</span>
+              <span>Riesgo de Vectores: ${weather.vectorRisk.level}</span>
             </span>
           </div>
         </div>
@@ -277,7 +260,7 @@ const App = {
     }
 
     if (showNotice) {
-      this.showToast(`Telemetría de Ocaña actualizada desde Open-Meteo API (${weather.temperatureC}°C, ${weather.humidityPercent}% hum).`, 'info');
+      this.showToast(`Condiciones ambientales de Ocaña actualizadas (${weather.temperatureC}°C, ${weather.humidityPercent}% humedad).`, 'info');
     }
   },
 
@@ -355,7 +338,7 @@ const App = {
 
       ${result.matchedSignatureRecord ? `
         <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-950">
-          <strong>✔ Firma Digital Veterinaria Autenticada:</strong> El sello criptográfico <code class="font-mono font-bold">${result.matchedSignatureRecord.digitalSignatureHash}</code> corresponde a la aplicación de <strong>${result.matchedSignatureRecord.vaccineName}</strong> (Lote ${result.matchedSignatureRecord.biologicalCode}) certificada por <strong>${result.matchedSignatureRecord.vetName}</strong> (${result.matchedSignatureRecord.vetLicense}).
+          <strong>✔ Firma Digital Veterinaria Autenticada:</strong> El sello <code class="font-mono font-bold">${result.matchedSignatureRecord.digitalSignatureHash}</code> corresponde a la aplicación de <strong>${result.matchedSignatureRecord.vaccineName}</strong> (Lote ${result.matchedSignatureRecord.biologicalCode}) certificada por <strong>${result.matchedSignatureRecord.vetName}</strong> (${result.matchedSignatureRecord.vetLicense}).
         </div>
       ` : ''}
 
@@ -514,7 +497,7 @@ const App = {
 
     this.currentView = 'dashboard';
     this.renderAppState();
-    this.showToast(`Sesión iniciada: ${user.name}`, 'success');
+    this.showToast(`Sesión iniciada como ${this.getRoleLabel(user.role)}: ${user.name}`, 'success');
   },
 
   logout() {
@@ -642,7 +625,7 @@ const App = {
 
     document.getElementById('register-form').reset();
     this.updatePasswordStrengthUI('');
-    this.showToast(`Cuenta creada y verificada para ${name}. Puede iniciar sesión con ${email} o documento ${documentNum}.`, 'success');
+    this.showToast(`Cuenta creada y verificada para ${name}.`, 'success');
     this.loginAsUser(newUser, true);
   },
 
@@ -727,12 +710,12 @@ const App = {
 
     document.getElementById('form-change-password').reset();
     this.renderUsersView();
-    this.showToast('Su credencial de acceso ha sido actualizada y cifrada correctamente.', 'success');
+    this.showToast('Su contraseña ha sido actualizada de forma segura.', 'success');
   },
 
   handleVetCreateOwner() {
-    if (this.currentUser.role !== 'VETERINARIO') {
-      this.showToast('Esta función está reservada para profesionales veterinarios.', 'error');
+    if (this.currentUser.role !== 'VETERINARIO' && this.currentUser.role !== 'ADMINISTRADOR') {
+      this.showToast('Esta función está reservada para profesionales veterinarios o administradores.', 'error');
       return;
     }
 
@@ -799,7 +782,7 @@ const App = {
    */
   handleRegisterPet() {
     if (this.currentUser.role === 'PROPIETARIO') {
-      this.showToast('La apertura de fichas clínicas iniciales es realizada por el Médico Veterinario o la Entidad Sanitaria.', 'error');
+      this.showToast('La apertura de fichas clínicas iniciales es realizada por el Médico Veterinario.', 'error');
       return;
     }
 
@@ -856,12 +839,9 @@ const App = {
 
     this.selectedPetId = newPet.id;
     this.renderAllActiveViews();
-    this.showToast(`Paciente "${name}" (${newPetId}) registrado y georreferenciado en Barrio ${neighborhood}, Ocaña.`, 'success');
+    this.showToast(`Paciente "${name}" (${newPetId}) registrado y vinculado a su propietario en Barrio ${neighborhood}.`, 'success');
   },
 
-  /**
-   * Autocompleta un protocolo biológico estándar con cálculo de dosis según peso y fecha de refuerzo
-   */
   applyBiologicalPreset(presetKey) {
     const catalog = window.OcanaGeoPoints?.biologicalCatalog || [];
     const preset = catalog.find(item => item.key === presetKey);
@@ -956,7 +936,7 @@ const App = {
 
   /**
    * ==========================================================================
-   * Permisos de Acceso por Perfil
+   * Matriz de Permisos y Menús Uniformes por Rol
    * ==========================================================================
    */
   getAccessiblePets() {
@@ -987,7 +967,8 @@ const App = {
     const map = {
       PROPIETARIO: 'Propietario de Mascota',
       VETERINARIO: 'Médico Veterinario',
-      ENTIDAD_SANITARIA: 'Salud Pública Municipal'
+      ENTIDAD_SANITARIA: 'Salud Pública Municipal',
+      ADMINISTRADOR: 'Administrador del Sistema'
     };
     return map[role] || role;
   },
@@ -996,17 +977,128 @@ const App = {
     const map = {
       PROPIETARIO: 'bg-sky-50 text-sky-700 border-sky-200',
       VETERINARIO: 'bg-teal-50 text-teal-700 border-teal-200',
-      ENTIDAD_SANITARIA: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+      ENTIDAD_SANITARIA: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      ADMINISTRADOR: 'bg-amber-50 text-amber-800 border-amber-300'
     };
     return map[role] || 'bg-slate-100 text-slate-700';
   },
 
   /**
+   * Define los ítems de menú permitidos para cada perfil con estructura 100% pareja.
+   * Las funciones de API, Recopilaciones, Tokens y Cloud quedan EXCLUSIVAS para ADMINISTRADOR.
+   */
+  getMenuItemsForRole(role) {
+    if (role === 'PROPIETARIO') {
+      return [
+        { view: 'dashboard', label: 'Inicio', mobileLabel: 'Inicio', icon: 'layout-dashboard' },
+        { view: 'carnet', label: 'Mi Carnet Digital', mobileLabel: 'Carnet QR', icon: 'id-card' },
+        { view: 'pets', label: 'Mis Mascotas', mobileLabel: 'Mascotas', icon: 'dog' },
+        { view: 'users', label: 'Mi Perfil y Clave', mobileLabel: 'Mi Perfil', icon: 'user-check' }
+      ];
+    }
+    if (role === 'VETERINARIO') {
+      return [
+        { view: 'dashboard', label: 'Inicio Clínico', mobileLabel: 'Inicio', icon: 'layout-dashboard' },
+        { view: 'pets', label: 'Pacientes', mobileLabel: 'Pacientes', icon: 'dog' },
+        { view: 'vaccinate', label: 'Aplicar Vacuna', mobileLabel: 'Vacunar', icon: 'syringe' },
+        { view: 'carnet', label: 'Carnets Digitales', mobileLabel: 'Carnets', icon: 'id-card' },
+        { view: 'users', label: 'Propietarios', mobileLabel: 'Dueños', icon: 'users' },
+        { view: 'epidemiology', label: 'Mapa Sanitario', mobileLabel: 'Mapa', icon: 'map-pin' }
+      ];
+    }
+    if (role === 'ENTIDAD_SANITARIA') {
+      return [
+        { view: 'dashboard', label: 'Resumen Municipal', mobileLabel: 'Resumen', icon: 'layout-dashboard' },
+        { view: 'epidemiology', label: 'Mapa y Censo Ocaña', mobileLabel: 'Mapa Censo', icon: 'map-pin' },
+        { view: 'carnet', label: 'Verificar Carnets', mobileLabel: 'Carnets', icon: 'id-card' },
+        { view: 'pets', label: 'Padrón Animal', mobileLabel: 'Padrón', icon: 'dog' },
+        { view: 'users', label: 'Mi Perfil', mobileLabel: 'Mi Perfil', icon: 'user-check' }
+      ];
+    }
+    // ADMINISTRADOR: Acceso exclusivo a API, Tokens, Recopilaciones y Configuración Cloud
+    return [
+      { view: 'dashboard', label: 'Panel General', mobileLabel: 'Panel', icon: 'layout-dashboard' },
+      { view: 'cloud', label: 'API, Tokens y Cloud', mobileLabel: 'API & BD', icon: 'cpu' },
+      { view: 'users', label: 'Usuarios y Permisos', mobileLabel: 'Usuarios', icon: 'shield-check' },
+      { view: 'pets', label: 'Base de Mascotas', mobileLabel: 'Mascotas', icon: 'dog' },
+      { view: 'carnet', label: 'Carnets Digitales', mobileLabel: 'Carnets', icon: 'id-card' },
+      { view: 'epidemiology', label: 'Mapa Epidemiológico', mobileLabel: 'Mapa', icon: 'map-pin' }
+    ];
+  },
+
+  /**
+   * Renderiza tanto el menú lateral de escritorio como la barra inferior fija de móvil
+   * para que sean totalmente parejos y nunca se pierdan al hacer scroll.
+   */
+  renderNavigationMenus() {
+    if (!this.currentUser) return;
+    const items = this.getMenuItemsForRole(this.currentUser.role);
+
+    // 1. Menú Lateral de Escritorio (Botones uniformes de misma altura y alineación)
+    const desktopNav = document.getElementById('desktop-sidebar-nav');
+    if (desktopNav) {
+      desktopNav.innerHTML = items.map(item => {
+        const isActive = item.view === this.currentView;
+        return `
+          <button onclick="App.navigateTo('${item.view}')"
+            class="sidebar-menu-btn ${isActive ? 'sidebar-menu-btn-active' : 'sidebar-menu-btn-inactive'}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+              }">
+                <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+              </span>
+              <span class="truncate">${item.label}</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-4 h-4 shrink-0 ${isActive ? 'text-white opacity-90' : 'text-slate-300'}"></i>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // 2. Barra de Navegación Inferior Fija en Móvil (Siempre visible sin importar el scroll)
+    const mobileNav = document.getElementById('mobile-bottom-nav-grid');
+    if (mobileNav) {
+      mobileNav.style.gridTemplateColumns = `repeat(${items.length}, minmax(0, 1fr))`;
+      mobileNav.innerHTML = items.map(item => {
+        const isActive = item.view === this.currentView;
+        return `
+          <button onclick="App.navigateTo('${item.view}')"
+            class="mobile-tab-btn ${isActive ? 'mobile-tab-btn-active' : 'mobile-tab-btn-inactive'}">
+            <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+            <span class="truncate max-w-full px-1">${item.mobileLabel}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // 3. Indicador de sección actual en móvil (parte superior del contenido)
+    const currentItem = items.find(i => i.view === this.currentView) || items[0];
+    const mobileBreadcrumb = document.getElementById('mobile-current-section-title');
+    if (mobileBreadcrumb && currentItem) {
+      mobileBreadcrumb.textContent = currentItem.label;
+    }
+  },
+
+  /**
    * ==========================================================================
-   * Navegación y Renderizado de Vistas
+   * Navegación y Control Estricto de Vistas por Rol
    * ==========================================================================
    */
   navigateTo(viewName, optionalPetId = null) {
+    if (!this.currentUser) return;
+
+    // Validar que el usuario tenga permiso para abrir esa vista
+    const allowedViews = this.getMenuItemsForRole(this.currentUser.role).map(i => i.view);
+    if (!allowedViews.includes(viewName)) {
+      if (viewName === 'cloud') {
+        this.showToast('Acceso restringido: El módulo de API, Tokens y Recopilaciones Cloud es exclusivo del perfil Administrador.', 'error');
+      } else {
+        this.showToast('Su perfil actual no tiene permisos para acceder a esa sección.', 'error');
+      }
+      viewName = 'dashboard';
+    }
+
     if (optionalPetId) {
       this.selectedPetId = optionalPetId;
     }
@@ -1015,28 +1107,27 @@ const App = {
     const sections = ['dashboard', 'pets', 'carnet', 'vaccinate', 'users', 'epidemiology', 'cloud'];
     sections.forEach(sec => {
       const el = document.getElementById(`view-${sec}`);
-      const navBtn = document.getElementById(`nav-btn-${sec}`);
       if (el) {
         el.classList.toggle('hidden', sec !== viewName);
       }
-      if (navBtn) {
-        if (sec === viewName) {
-          navBtn.className = 'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold bg-teal-600 text-white shadow-sm transition';
-        } else {
-          navBtn.className = 'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition';
-        }
-      }
     });
 
+    this.renderNavigationMenus();
     this.renderAllActiveViews();
+
+    // En móvil y escritorio, volver suavemente arriba al cambiar de pestaña para que nunca se pierda en el scroll
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (viewName === 'epidemiology') {
       setTimeout(() => {
         this.renderOcanaEpidemiologyMap();
       }, 120);
     }
-    if (viewName === 'cloud' && !this.lastApiConsoleJson) {
-      this.testLiveAPIEndpoint('CENSO');
+    if (viewName === 'cloud' && this.currentUser.role === 'ADMINISTRADOR') {
+      if (!this.lastApiConsoleJson) {
+        this.testLiveAPIEndpoint('CENSO');
+      }
+      this.renderAdminCollectionInspector(this.adminSelectedCollection);
     }
 
     this.refreshIcons();
@@ -1068,45 +1159,50 @@ const App = {
     roleBadge.textContent = this.getRoleLabel(this.currentUser.role);
     roleBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${this.getRoleBadgeClass(this.currentUser.role)}`;
 
-    const navVaccinate = document.getElementById('nav-item-vaccinate');
-    const navEpidemiology = document.getElementById('nav-item-epidemiology');
-
-    if (navVaccinate) {
-      navVaccinate.classList.toggle('hidden', this.currentUser.role !== 'VETERINARIO');
-    }
-    if (navEpidemiology) {
-      navEpidemiology.classList.toggle(
-        'hidden',
-        this.currentUser.role !== 'ENTIDAD_SANITARIA' && this.currentUser.role !== 'VETERINARIO'
-      );
-    }
-
     const urgentAlerts = this.getAccessibleAlerts().filter(a => a.status.code !== 'OK');
     const alertCountBadge = document.getElementById('header-alert-count');
     if (alertCountBadge) {
       alertCountBadge.textContent = urgentAlerts.length;
     }
 
+    // Selector rápido de cuentas en cabecera y versión móvil
     const roleSwitcherSelect = document.getElementById('account-quick-switcher');
     if (roleSwitcherSelect) {
       roleSwitcherSelect.innerHTML = this.db.users.map(u => `
         <option value="${u.id}" ${u.id === this.currentUser.id ? 'selected' : ''}>
-          ${u.name} — ${this.getRoleLabel(u.role)}
+          [${this.getRoleLabel(u.role)}] ${u.name}
         </option>
       `).join('');
     }
 
-    const cloudCfg = window.GoogleCloudConfig.getConfig();
+    const mobileRoleSwitcher = document.getElementById('mobile-account-switcher');
+    if (mobileRoleSwitcher) {
+      mobileRoleSwitcher.innerHTML = this.db.users.map(u => `
+        <option value="${u.id}" ${u.id === this.currentUser.id ? 'selected' : ''}>
+          ${this.getRoleLabel(u.role)}: ${u.name.split(' ')[0]}
+        </option>
+      `).join('');
+    }
+
+    // El badge técnico de API & Cloud en la barra superior SOLO se muestra al ADMINISTRADOR
     const cloudBadge = document.getElementById('header-cloud-badge');
     if (cloudBadge) {
-      if (cloudCfg.enabled && (cloudCfg.apiKey || cloudCfg.publicWebhookUrl)) {
-        cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>GCP & API REST Activo</span>`;
-        cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-pointer';
+      if (this.currentUser.role === 'ADMINISTRADOR') {
+        const cloudCfg = window.GoogleCloudConfig.getConfig();
+        cloudBadge.classList.remove('hidden');
+        if (cloudCfg.enabled && (cloudCfg.apiKey || cloudCfg.publicWebhookUrl)) {
+          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Admin: Cloud & API Activo</span>`;
+          cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-pointer';
+        } else {
+          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Admin: Consola API & Tokens</span>`;
+          cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 cursor-pointer';
+        }
       } else {
-        cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-teal-500"></span><span>API Pública & Cloud</span>`;
-        cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer';
+        cloudBadge.className = 'hidden';
       }
     }
+
+    this.renderNavigationMenus();
   },
 
   renderAllActiveViews() {
@@ -1118,12 +1214,14 @@ const App = {
     this.renderVaccinateView();
     this.renderUsersView();
     this.renderEpidemiologyView();
-    this.renderCloudStatusView();
+    if (this.currentUser.role === 'ADMINISTRADOR') {
+      this.renderCloudStatusView();
+    }
   },
 
   /**
    * ==========================================================================
-   * Vista 1: Panel de Control, Gráficas y Alertas con Despacho WhatsApp API
+   * Vista 1: Panel de Control Claro, Parejo y Adaptado a cada Usuario
    * ==========================================================================
    */
   setAlertFilter(filterCode) {
@@ -1143,10 +1241,27 @@ const App = {
     document.getElementById('kpi-urgent-alerts').textContent = overdueCount + upcomingCount;
 
     const totalOwners = this.db.users.filter(u => u.role === 'PROPIETARIO').length;
-    document.getElementById('kpi-total-owners').textContent =
-      this.currentUser.role === 'PROPIETARIO' ? 'Activa' : totalOwners;
+    const kpi4Label = document.getElementById('kpi-4-label');
+    const kpi4Sub = document.getElementById('kpi-4-sub');
 
+    if (this.currentUser.role === 'PROPIETARIO') {
+      if (kpi4Label) kpi4Label.textContent = 'Estado de Mi Cuenta';
+      document.getElementById('kpi-total-owners').textContent = 'Verificada';
+      if (kpi4Sub) kpi4Sub.textContent = 'Alertas activas';
+    } else if (this.currentUser.role === 'ADMINISTRADOR') {
+      if (kpi4Label) kpi4Label.textContent = 'Cuentas Totales';
+      document.getElementById('kpi-total-owners').textContent = this.db.users.length;
+      if (kpi4Sub) kpi4Sub.textContent = '4 roles del sistema';
+    } else {
+      if (kpi4Label) kpi4Label.textContent = 'Propietarios Activos';
+      document.getElementById('kpi-total-owners').textContent = totalOwners;
+      if (kpi4Sub) kpi4Sub.textContent = 'Red Municipal Ocaña';
+    }
+
+    // Banner principal y Guía Rápida de 3 Pasos Parejos según el Rol
     const welcomeBanner = document.getElementById('dashboard-role-summary');
+    const quickStepsBox = document.getElementById('dashboard-role-quicksteps');
+
     if (this.currentUser.role === 'PROPIETARIO') {
       welcomeBanner.innerHTML = `
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1156,38 +1271,135 @@ const App = {
             </span>
             <h2 class="text-xl md:text-2xl font-extrabold text-white">Hola, ${this.currentUser.name}</h2>
             <p class="text-sm text-teal-100/95 mt-1 max-w-2xl">
-              Consulte en tiempo real el Carnet Sanitario Digital de sus mascotas con código QR verificable, compruebe las firmas veterinarias y mantenga al día sus esquemas preventivos.
+              Aquí puedes consultar e imprimir el Carnet Sanitario Digital de tus mascotas y revisar las fechas de sus próximas vacunas o desparasitaciones.
             </p>
           </div>
           <div class="flex flex-wrap gap-2.5 shrink-0">
-            <button onclick="App.navigateTo('carnet')" class="px-4 py-2.5 bg-white text-teal-950 font-bold text-sm rounded-xl shadow-md hover:bg-teal-50 transition">
-              Abrir Carnet Digital QR
+            <button onclick="App.navigateTo('carnet')" class="w-full sm:w-auto px-5 py-3 bg-white text-teal-950 font-extrabold text-sm rounded-xl shadow-md hover:bg-teal-50 transition">
+              🪪 Ver Carnet Digital QR
             </button>
           </div>
         </div>
       `;
+
+      if (quickStepsBox) {
+        quickStepsBox.innerHTML = `
+          <button onclick="App.navigateTo('carnet')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-extrabold flex items-center justify-center shrink-0">1</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Carnet Sanitario QR</div>
+              <p class="text-xs text-slate-500 mt-0.5">Visualiza, descarga o imprime el carnet oficial de tus mascotas.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('pets')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 font-extrabold flex items-center justify-center shrink-0">2</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Mis Mascotas (${accessiblePets.length})</div>
+              <p class="text-xs text-slate-500 mt-0.5">Revisa los datos clínicos, peso, edad y microchip de cada ejemplar.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('users')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 font-extrabold flex items-center justify-center shrink-0">3</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Mis Datos de Contacto</div>
+              <p class="text-xs text-slate-500 mt-0.5">Actualiza tu teléfono WhatsApp o dirección para recibir recordatorios.</p>
+            </div>
+          </button>
+        `;
+      }
     } else if (this.currentUser.role === 'VETERINARIO') {
       welcomeBanner.innerHTML = `
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-teal-100 backdrop-blur-sm mb-2">
-              Consultorio Veterinario Acreditado • Licencia ${this.currentUser.licenseNumber || 'COMVEZCOL'}
+              Médico Veterinario Acreditado • Licencia ${this.currentUser.licenseNumber || 'COMVEZCOL'}
             </span>
             <h2 class="text-xl md:text-2xl font-extrabold text-white">${this.currentUser.clinicName || this.currentUser.name}</h2>
             <p class="text-sm text-teal-100/95 mt-1 max-w-2xl">
-              Gestione historias clínicas georreferenciadas, registre propietarios en consulta presencial y certifique vacunas o desparasitaciones con firma digital verificable por QR.
+              Gestione pacientes, registre propietarios durante la consulta presencial y certifique vacunas o desparasitaciones con su firma electrónica.
             </p>
           </div>
           <div class="flex flex-wrap gap-2.5 shrink-0">
-            <button onclick="App.navigateTo('pets')" class="px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/25 font-semibold text-sm rounded-xl transition">
+            <button onclick="App.navigateTo('pets')" class="flex-1 sm:flex-initial px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/25 font-semibold text-sm rounded-xl transition">
               + Nuevo Paciente
             </button>
-            <button onclick="App.navigateTo('vaccinate')" class="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm rounded-xl shadow-md transition">
-              + Aplicar Biológico
+            <button onclick="App.navigateTo('vaccinate')" class="flex-1 sm:flex-initial px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm rounded-xl shadow-md transition">
+              + Aplicar Vacuna
             </button>
           </div>
         </div>
       `;
+
+      if (quickStepsBox) {
+        quickStepsBox.innerHTML = `
+          <button onclick="App.navigateTo('users')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 font-extrabold flex items-center justify-center shrink-0">1</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Registrar Propietario</div>
+              <p class="text-xs text-slate-500 mt-0.5">Crea la cuenta del dueño en consulta presencial con su cédula.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('pets')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-extrabold flex items-center justify-center shrink-0">2</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Registrar Mascota</div>
+              <p class="text-xs text-slate-500 mt-0.5">Abre la ficha clínica del paciente y vincúlalo a su propietario.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('vaccinate')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 font-extrabold flex items-center justify-center shrink-0">3</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Certificar Vacuna / Dosis</div>
+              <p class="text-xs text-slate-500 mt-0.5">Registra el lote biológico, programa el refuerzo y firma el carnet.</p>
+            </div>
+          </button>
+        `;
+      }
+    } else if (this.currentUser.role === 'ADMINISTRADOR') {
+      welcomeBanner.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/20 text-amber-200 border border-amber-300/30 mb-2">
+              Perfil Administrador General • Control de API, Tokens y Base de Datos
+            </span>
+            <h2 class="text-xl md:text-2xl font-extrabold text-white">${this.currentUser.name}</h2>
+            <p class="text-sm text-teal-100/95 mt-1 max-w-2xl">
+              Administre de forma exclusiva las llaves de la API, tokens de acceso, recopilaciones de Cloud Firestore, respaldos JSON y permisos de usuarios.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2.5 shrink-0">
+            <button onclick="App.navigateTo('cloud')" class="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm rounded-xl shadow-md transition">
+              ⚙️ Abrir Consola API, Tokens y BD
+            </button>
+          </div>
+        </div>
+      `;
+
+      if (quickStepsBox) {
+        quickStepsBox.innerHTML = `
+          <button onclick="App.navigateTo('cloud')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 font-extrabold flex items-center justify-center shrink-0">⚙️</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Permisos de API y Tokens</div>
+              <p class="text-xs text-slate-500 mt-0.5">Gestiona tokens de acceso, endpoints REST y llaves de Google Cloud.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('cloud')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-extrabold flex items-center justify-center shrink-0">🗄️</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Recopilaciones y Respaldos</div>
+              <p class="text-xs text-slate-500 mt-0.5">Inspecciona las colecciones de datos y exporta/importa copias JSON.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('users')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 font-extrabold flex items-center justify-center shrink-0">🛡️</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Auditoría de Usuarios</div>
+              <p class="text-xs text-slate-500 mt-0.5">Supervisa cuentas de veterinarios, propietarios y firmas cifradas.</p>
+            </div>
+          </button>
+        `;
+      }
     } else {
       welcomeBanner.innerHTML = `
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1197,7 +1409,7 @@ const App = {
             </span>
             <h2 class="text-xl md:text-2xl font-extrabold text-white">${this.currentUser.name}</h2>
             <p class="text-sm text-teal-100/95 mt-1 max-w-2xl">
-              Monitoree en el mapa interactivo de Ocaña la cobertura de inmunización antirrábica y polivalente, el censo poblacional por barrios y la trazabilidad de lotes biológicos.
+              Monitoree en el mapa interactivo de Ocaña la cobertura de inmunización antirrábica, el censo poblacional por barrios y la trazabilidad de lotes biológicos.
             </p>
           </div>
           <div class="flex gap-2.5 shrink-0">
@@ -1207,6 +1419,32 @@ const App = {
           </div>
         </div>
       `;
+
+      if (quickStepsBox) {
+        quickStepsBox.innerHTML = `
+          <button onclick="App.navigateTo('epidemiology')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-extrabold flex items-center justify-center shrink-0">1</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Mapa por Barrios</div>
+              <p class="text-xs text-slate-500 mt-0.5">Visualiza la cobertura sanitaria georreferenciada en Ocaña.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('pets')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 font-extrabold flex items-center justify-center shrink-0">2</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Padrón Municipal</div>
+              <p class="text-xs text-slate-500 mt-0.5">Consulta las fichas de caninos y felinos registrados.</p>
+            </div>
+          </button>
+          <button onclick="App.navigateTo('carnet')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold flex items-center justify-center shrink-0">3</div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Verificar Certificados</div>
+              <p class="text-xs text-slate-500 mt-0.5">Audita carnets digitales y firmas de médicos veterinarios.</p>
+            </div>
+          </button>
+        `;
+      }
     }
 
     ['ALL', 'OVERDUE', 'UPCOMING', 'OK'].forEach(code => {
@@ -1225,6 +1463,7 @@ const App = {
       return a.status.code === this.alertFilter;
     });
 
+    const isOwner = this.currentUser.role === 'PROPIETARIO';
     const alertsContainer = document.getElementById('dashboard-alerts-list');
     if (filteredAlerts.length === 0) {
       alertsContainer.innerHTML = `
@@ -1243,7 +1482,6 @@ const App = {
               <div class="flex flex-wrap items-center gap-2">
                 <span class="font-bold text-slate-900 text-sm">${item.pet ? item.pet.name : item.vac.petId}</span>
                 <span class="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${item.vac.petId}</span>
-                <span class="text-[11px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded font-semibold">Barrio ${item.pet?.neighborhood || 'Ocaña'}</span>
                 <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-semibold border ${item.status.badgeClass}">
                   <span class="w-1.5 h-1.5 rounded-full ${item.status.dotClass}"></span>
                   ${item.status.label}
@@ -1254,15 +1492,17 @@ const App = {
                 <span class="text-xs text-slate-500 font-mono ml-1">(Lote: ${item.vac.biologicalCode})</span>
               </p>
               <p class="text-xs text-slate-500 mt-0.5">
-                Responsable: <strong>${item.owner ? item.owner.name : 'No asignado'}</strong> • WhatsApp: ${item.owner ? item.owner.phone : 'N/A'} • Refuerzo: <strong>${item.vac.nextBoosterDate}</strong>
+                Próximo refuerzo programado: <strong class="text-slate-800">${item.vac.nextBoosterDate}</strong> • Clínica: ${item.vac.clinicName}
               </p>
             </div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="App.sendPreventiveReminder('${item.vac.id}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
-              📲 WhatsApp Oficial
-            </button>
-            <button onclick="App.navigateTo('carnet', '${item.vac.petId}')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 transition">
+            ${!isOwner ? `
+              <button onclick="App.sendPreventiveReminder('${item.vac.id}')" class="px-3 py-2 text-xs font-bold rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
+                📲 Recordar por WhatsApp
+              </button>
+            ` : ''}
+            <button onclick="App.navigateTo('carnet', '${item.vac.petId}')" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition">
               Ver Carnet
             </button>
           </div>
@@ -1276,7 +1516,7 @@ const App = {
         const owner = this.db.users.find(u => u.id === pet.ownerId);
         const vacCount = this.db.vaccinations.filter(v => v.petId === pet.id).length;
         return `
-          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:shadow-sm transition flex items-center justify-between">
+          <div onclick="App.navigateTo('carnet', '${pet.id}')" class="cursor-pointer p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-teal-300 hover:shadow-sm transition flex items-center justify-between">
             <div>
               <div class="flex items-center gap-2">
                 <span class="text-lg">${pet.species === 'Canino' ? '🐕' : '🐈'}</span>
@@ -1284,14 +1524,15 @@ const App = {
                 <span class="text-[11px] font-mono bg-white border border-slate-200 text-teal-700 font-semibold px-1.5 py-0.5 rounded">${pet.id}</span>
               </div>
               <p class="text-xs text-slate-500 mt-1">
-                ${pet.breed} • ${pet.neighborhood || 'Ocaña'} • Prop: ${owner ? owner.name.split(' ')[0] + ' ' + (owner.name.split(' ')[2] || '') : 'N/A'}
+                ${pet.breed} • ${window.DataStore.calculateAge(pet.birthDate)}
+                ${!isOwner ? `• Prop: ${owner ? owner.name.split(' ')[0] : 'N/A'}` : ''}
               </p>
             </div>
-            <div class="text-right">
-              <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100">${vacCount} dosis</span>
-              <button onclick="App.navigateTo('carnet', '${pet.id}')" class="block mt-1 text-xs font-bold text-sky-700 hover:underline">
-                Carnet QR →
-              </button>
+            <div class="text-right shrink-0">
+              <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-100">${vacCount} dosis</span>
+              <span class="block mt-1 text-xs font-bold text-sky-700">
+                Abrir Carnet →
+              </span>
             </div>
           </div>
         `;
@@ -1312,7 +1553,7 @@ const App = {
     this.charts.dashboardStatus = new window.Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['Esquema Vigente', 'Próximo Refuerzo (≤30d)', 'Refuerzo Vencido'],
+        labels: ['Al Día', 'Próximo (≤30d)', 'Vencido'],
         datasets: [{
           data: [okCount, upcomingCount, overdueCount],
           backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
@@ -1334,9 +1575,6 @@ const App = {
     });
   },
 
-  /**
-   * Abre el modal de despacho de recordatorio preventivo conectado a WhatsApp Web API (wa.me)
-   */
   sendPreventiveReminder(vacId) {
     const vac = this.db.vaccinations.find(v => v.id === vacId);
     if (!vac) return;
@@ -1364,7 +1602,7 @@ const App = {
     if (metaBox) {
       metaBox.innerHTML = `
         <div><strong>Destinatario:</strong> ${owner ? owner.name : 'Propietario'} • <strong>WhatsApp:</strong> +${colPhone}</div>
-        <div><strong>Paciente:</strong> ${pet ? pet.name : vac.petId} (${pet ? pet.breed : ''}) • <strong>Sello Digital:</strong> <span class="font-mono">${vac.digitalSignatureHash}</span></div>
+        <div><strong>Paciente:</strong> ${pet ? pet.name : vac.petId} (${pet ? pet.breed : ''})</div>
       `;
     }
     if (msgInput) {
@@ -1397,13 +1635,13 @@ const App = {
   },
 
   onWhatsAppLaunched() {
-    this.showToast('Abriendo canal oficial de WhatsApp con el mensaje preventivo pre-cargado.', 'success');
+    this.showToast('Abriendo WhatsApp con el recordatorio preventivo.', 'success');
     this.closeWhatsAppModal();
   },
 
   /**
    * ==========================================================================
-   * Vista 2: Directorio y Registro de Pacientes (Mascotas)
+   * Vista 2: Directorio y Registro de Pacientes (Mascotas) - Adaptado a Móvil y Desktop
    * ==========================================================================
    */
   populatePetFormSelects() {
@@ -1444,59 +1682,112 @@ const App = {
     });
 
     const container = document.getElementById('pets-directory-tbody');
-    if (!container) return;
+    const mobileCardsContainer = document.getElementById('pets-directory-mobile-cards');
 
     if (filtered.length === 0) {
-      container.innerHTML = `
-        <tr>
-          <td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">
+      if (container) {
+        container.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">
+              No se encontraron mascotas que coincidan con la búsqueda.
+            </td>
+          </tr>
+        `;
+      }
+      if (mobileCardsContainer) {
+        mobileCardsContainer.innerHTML = `
+          <div class="p-6 text-center text-sm text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
             No se encontraron mascotas que coincidan con la búsqueda.
-          </td>
-        </tr>
-      `;
+          </div>
+        `;
+      }
       return;
     }
 
-    container.innerHTML = filtered.map(pet => {
-      const owner = this.db.users.find(u => u.id === pet.ownerId);
-      const petVacs = this.db.vaccinations.filter(v => v.petId === pet.id);
-      return `
-        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100">
-          <td class="px-4 py-3.5 text-xs font-mono font-bold text-teal-700">${pet.id}</td>
-          <td class="px-4 py-3.5">
-            <div class="font-bold text-slate-900 text-sm">${pet.species === 'Canino' ? '🐕' : '🐈'} ${pet.name}</div>
-            <div class="text-xs text-slate-500 font-mono">Chip: ${pet.microchipOrTag || 'N/A'}</div>
-          </td>
-          <td class="px-4 py-3.5 text-sm text-slate-700">
-            <div class="font-medium">${pet.species} • ${pet.breed}</div>
-            <div class="text-xs text-slate-500">${pet.sex} • ${pet.weightKg} kg • <span class="text-teal-700 font-semibold">Barrio ${pet.neighborhood || 'Ocaña'}</span></div>
-          </td>
-          <td class="px-4 py-3.5 text-sm text-slate-700">
-            <div class="font-semibold">${window.DataStore.calculateAge(pet.birthDate)}</div>
-            <div class="text-xs text-slate-400">Nac: ${pet.birthDate}</div>
-          </td>
-          <td class="px-4 py-3.5 text-sm">
-            <div class="font-semibold text-slate-900">${owner ? owner.name : 'No asignado'}</div>
-            <div class="text-xs text-slate-500">Doc: ${owner ? owner.document : 'N/A'} • Tel: ${owner ? owner.phone : 'N/A'}</div>
-          </td>
-          <td class="px-4 py-3.5 text-center">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200">
-              ${petVacs.length} aplicaciones
-            </span>
-          </td>
-          <td class="px-4 py-3.5 text-right space-x-1.5">
-            <button onclick="App.navigateTo('carnet', '${pet.id}')" class="px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition">
-              Carnet QR
-            </button>
-            ${this.currentUser.role === 'VETERINARIO' ? `
-              <button onclick="App.openVaccinateForPet('${pet.id}')" class="px-2.5 py-1.5 bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg hover:bg-amber-200 transition">
-                + Aplicar Dosis
+    if (container) {
+      container.innerHTML = filtered.map(pet => {
+        const owner = this.db.users.find(u => u.id === pet.ownerId);
+        const petVacs = this.db.vaccinations.filter(v => v.petId === pet.id);
+        return `
+          <tr class="hover:bg-slate-50/90 transition border-b border-slate-100">
+            <td class="px-4 py-3.5 text-xs font-mono font-bold text-teal-700">${pet.id}</td>
+            <td class="px-4 py-3.5">
+              <div class="font-bold text-slate-900 text-sm">${pet.species === 'Canino' ? '🐕' : '🐈'} ${pet.name}</div>
+              <div class="text-xs text-slate-500 font-mono">Chip: ${pet.microchipOrTag || 'N/A'}</div>
+            </td>
+            <td class="px-4 py-3.5 text-sm text-slate-700">
+              <div class="font-medium">${pet.species} • ${pet.breed}</div>
+              <div class="text-xs text-slate-500">${pet.sex} • ${pet.weightKg} kg • <span class="text-teal-700 font-semibold">Barrio ${pet.neighborhood || 'Ocaña'}</span></div>
+            </td>
+            <td class="px-4 py-3.5 text-sm text-slate-700">
+              <div class="font-semibold">${window.DataStore.calculateAge(pet.birthDate)}</div>
+              <div class="text-xs text-slate-400">Nac: ${pet.birthDate}</div>
+            </td>
+            <td class="px-4 py-3.5 text-sm">
+              <div class="font-semibold text-slate-900">${owner ? owner.name : 'No asignado'}</div>
+              <div class="text-xs text-slate-500">Doc: ${owner ? owner.document : 'N/A'} • Tel: ${owner ? owner.phone : 'N/A'}</div>
+            </td>
+            <td class="px-4 py-3.5 text-center">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                ${petVacs.length} dosis
+              </span>
+            </td>
+            <td class="px-4 py-3.5 text-right space-x-1.5">
+              <button onclick="App.navigateTo('carnet', '${pet.id}')" class="px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition">
+                Carnet QR
               </button>
-            ` : ''}
-          </td>
-        </tr>
-      `;
-    }).join('');
+              ${this.currentUser.role === 'VETERINARIO' ? `
+                <button onclick="App.openVaccinateForPet('${pet.id}')" class="px-2.5 py-1.5 bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg hover:bg-amber-200 transition">
+                  + Vacunar
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Tarjetas responsivas para vista móvil (Evita tablas cortadas en celulares)
+    if (mobileCardsContainer) {
+      mobileCardsContainer.innerHTML = filtered.map(pet => {
+        const owner = this.db.users.find(u => u.id === pet.ownerId);
+        const petVacs = this.db.vaccinations.filter(v => v.petId === pet.id);
+        return `
+          <div class="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-lg">
+                  ${pet.species === 'Canino' ? '🐕' : '🐈'}
+                </span>
+                <div>
+                  <div class="font-extrabold text-slate-900 text-base">${pet.name}</div>
+                  <div class="text-xs font-mono text-teal-700 font-bold">${pet.id} • ${pet.breed}</div>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">
+                ${petVacs.length} dosis
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+              <div><strong>Edad:</strong> ${window.DataStore.calculateAge(pet.birthDate)}</div>
+              <div><strong>Peso / Sexo:</strong> ${pet.weightKg} kg • ${pet.sex}</div>
+              <div><strong>Barrio:</strong> ${pet.neighborhood || 'Ocaña'}</div>
+              <div><strong>Dueño:</strong> ${owner ? owner.name.split(' ')[0] : 'N/A'}</div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="App.navigateTo('carnet', '${pet.id}')" class="flex-1 py-2.5 bg-teal-600 text-white text-xs font-bold rounded-xl shadow-sm">
+                🪪 Ver Carnet Digital
+              </button>
+              ${this.currentUser.role === 'VETERINARIO' ? `
+                <button onclick="App.openVaccinateForPet('${pet.id}')" class="px-3.5 py-2.5 bg-amber-100 text-amber-900 text-xs font-bold rounded-xl">
+                  💉 Vacunar
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
   },
 
   openVaccinateForPet(petId) {
@@ -1531,7 +1822,7 @@ const App = {
       selector.innerHTML = accessiblePets.map(p => {
         const owner = this.db.users.find(u => u.id === p.ownerId);
         return `<option value="${p.id}" ${p.id === this.selectedPetId ? 'selected' : ''}>
-          ${p.id} — ${p.name} (${p.species} / ${p.breed}) • Sector: ${p.neighborhood || 'Ocaña'} • Prop: ${owner ? owner.name : 'N/A'}
+          ${p.id} — ${p.name} (${p.species} / ${p.breed}) • Prop: ${owner ? owner.name : 'N/A'}
         </option>`;
       }).join('');
     }
@@ -1577,7 +1868,6 @@ const App = {
     document.getElementById('carnet-owner-phone').textContent = owner ? owner.phone : 'N/A';
     document.getElementById('carnet-owner-address').textContent = owner ? owner.address : 'Ocaña, N. de S.';
 
-    // Generar código QR 100% Real y Escaneable que apunta a la URL pública de verificación (?verify=OCA-PET-XXX)
     const qrContainer = document.getElementById('carnet-qr-box');
     if (qrContainer) {
       const publicVerificationUrl = window.PublicAPIConnector.getPublicVerificationUrl(pet.id);
@@ -1653,7 +1943,6 @@ const App = {
       </option>`;
     }).join('');
 
-    // Renderizar botones de autocompletado clínico rápido
     const presetsContainer = document.getElementById('vac-quick-presets');
     if (presetsContainer && window.OcanaGeoPoints?.biologicalCatalog) {
       presetsContainer.innerHTML = window.OcanaGeoPoints.biologicalCatalog.map(item => `
@@ -1734,7 +2023,7 @@ const App = {
 
   /**
    * ==========================================================================
-   * Vista 5: Administración de Cuenta, Credenciales y Propietarios
+   * Vista 5: Mi Perfil, Seguridad y Gestión de Propietarios (Sin exponer datos Admin)
    * ==========================================================================
    */
   renderUsersView() {
@@ -1746,9 +2035,14 @@ const App = {
     document.getElementById('prof-phone').value = this.currentUser.phone || '';
     document.getElementById('prof-address').value = this.currentUser.address || '';
 
+    // El hash criptográfico interno SOLO lo ve el ADMINISTRADOR
+    const adminHashBox = document.getElementById('admin-only-hash-box');
     const hashDisplay = document.getElementById('sec-stored-hash-preview');
+    if (adminHashBox) {
+      adminHashBox.classList.toggle('hidden', this.currentUser.role !== 'ADMINISTRADOR');
+    }
     if (hashDisplay) {
-      hashDisplay.textContent = this.currentUser.passwordHash || 'Cifrado estándar activo';
+      hashDisplay.textContent = this.currentUser.passwordHash || 'Cifrado activo';
     }
 
     const vetExtraProfile = document.getElementById('prof-vet-extra');
@@ -1762,16 +2056,33 @@ const App = {
       }
     }
 
+    // El formulario para registrar propietarios en consulta lo ven Veterinario y Administrador
     const vetCreateOwnerPanel = document.getElementById('vet-create-owner-panel');
     if (vetCreateOwnerPanel) {
-      vetCreateOwnerPanel.classList.toggle('hidden', this.currentUser.role !== 'VETERINARIO');
+      const canCreateOwners = this.currentUser.role === 'VETERINARIO' || this.currentUser.role === 'ADMINISTRADOR';
+      vetCreateOwnerPanel.classList.toggle('hidden', !canCreateOwners);
     }
 
+    // La tabla inferior de usuarios se oculta para PROPIETARIO y ENTIDAD_SANITARIA (para no saturar su vista)
+    // Para VETERINARIO muestra solo Propietarios de mascotas; para ADMINISTRADOR muestra todos los roles del sistema.
+    const directoryCard = document.getElementById('users-directory-card');
+    const directoryTitle = document.getElementById('users-directory-title');
     const ownersListBody = document.getElementById('users-owners-tbody');
+
+    if (directoryCard) {
+      const showDirectory = this.currentUser.role === 'VETERINARIO' || this.currentUser.role === 'ADMINISTRADOR';
+      directoryCard.classList.toggle('hidden', !showDirectory);
+    }
+
     if (ownersListBody) {
-      const visibleUsers = this.currentUser.role === 'PROPIETARIO'
-        ? [this.currentUser]
-        : this.db.users;
+      let visibleUsers = [];
+      if (this.currentUser.role === 'ADMINISTRADOR') {
+        visibleUsers = this.db.users;
+        if (directoryTitle) directoryTitle.textContent = 'Directorio General de Cuentas, Roles y Estado de Acceso (Vista Administrador)';
+      } else if (this.currentUser.role === 'VETERINARIO') {
+        visibleUsers = this.db.users.filter(u => u.role === 'PROPIETARIO');
+        if (directoryTitle) directoryTitle.textContent = 'Propietarios Registrados y Mascotas Asociadas';
+      }
 
       ownersListBody.innerHTML = visibleUsers.map(u => {
         const linkedPets = this.db.pets.filter(p => p.ownerId === u.id);
@@ -1779,7 +2090,7 @@ const App = {
           <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition">
             <td class="px-4 py-3">
               <div class="font-bold text-slate-900 text-sm">${u.name}</div>
-              <div class="text-xs text-slate-500">Doc: <strong class="font-mono">${u.document}</strong></div>
+              <div class="text-xs text-slate-500">Documento: <strong class="font-mono">${u.document}</strong></div>
             </td>
             <td class="px-4 py-3">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${this.getRoleBadgeClass(u.role)}">
@@ -1789,22 +2100,24 @@ const App = {
             </td>
             <td class="px-4 py-3 text-xs text-slate-700">
               <div class="font-medium">${u.email}</div>
-              <div class="text-slate-500">Tel: ${u.phone} • ${u.address}</div>
+              <div class="text-slate-500">WhatsApp: ${u.phone} • ${u.address}</div>
             </td>
             <td class="px-4 py-3">
-              <div class="text-[11px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded inline-block">
-                ✔ Credencial Cifrada Activa
+              <div class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-block">
+                ✔ Cuenta Activa
               </div>
-              <div class="text-[10px] text-slate-400 mt-0.5">Últ. acceso: ${u.lastLogin || 'Reciente'}</div>
+              ${this.currentUser.role === 'ADMINISTRADOR' ? `
+                <div class="text-[10px] font-mono text-slate-400 mt-0.5 truncate max-w-[160px]" title="${u.passwordHash}">${u.passwordHash}</div>
+              ` : ''}
             </td>
             <td class="px-4 py-3">
               <div class="flex flex-wrap gap-1">
                 ${u.role !== 'PROPIETARIO'
-                  ? `<span class="text-xs text-slate-400">Personal Facultativo / Institucional</span>`
+                  ? `<span class="text-xs text-slate-400">Rol Institucional / Sistema</span>`
                   : linkedPets.length === 0
                     ? `<span class="text-xs text-slate-400 italic">Sin mascotas vinculadas</span>`
                     : linkedPets.map(lp => `
-                        <button onclick="App.navigateTo('carnet', '${lp.id}')" class="px-2 py-0.5 text-xs font-semibold rounded-md bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
+                        <button onclick="App.navigateTo('carnet', '${lp.id}')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
                           ${lp.species === 'Canino' ? '🐕' : '🐈'} ${lp.name}
                         </button>
                       `).join('')
@@ -1819,7 +2132,7 @@ const App = {
 
   /**
    * ==========================================================================
-   * Vista 6: Vigilancia Epidemiológica, Mapa Interactivo de Ocaña y Exportación CSV
+   * Vista 6: Vigilancia Epidemiológica y Mapa Interactivo de Ocaña
    * ==========================================================================
    */
   renderEpidemiologyView() {
@@ -1837,7 +2150,6 @@ const App = {
     const elDesp = document.getElementById('epi-count-desp');
     if (elDesp) elDesp.textContent = totalDesparasitaciones;
 
-    // Cobertura antirrábica municipal
     const petsWithRabies = this.db.pets.filter(p =>
       this.db.vaccinations.some(v =>
         v.petId === p.id &&
@@ -1850,7 +2162,6 @@ const App = {
     const rabiesEl = document.getElementById('epi-rabies-coverage-pct');
     if (rabiesEl) rabiesEl.textContent = `${rabiesPct}%`;
 
-    // Resumen por sectores/barrios de Ocaña
     const neighContainer = document.getElementById('epi-neighborhood-summary');
     if (neighContainer) {
       const countsByNeigh = {};
@@ -1897,9 +2208,6 @@ const App = {
     this.renderEpidemiologyChart(caninos, felinos, totalVacunas, totalDesparasitaciones);
   },
 
-  /**
-   * Renderiza el Mapa Georreferenciado Interactivo de Ocaña con OpenStreetMap + Leaflet API
-   */
   renderOcanaEpidemiologyMap() {
     const mapContainer = document.getElementById('ocana-epi-map');
     if (!mapContainer || typeof window.L === 'undefined') return;
@@ -1916,7 +2224,6 @@ const App = {
     this.leafletMap.invalidateSize();
     this.leafletMarkersLayer.clearLayers();
 
-    // 1. Marcadores de Clínicas Veterinarias Acreditadas, Secretaría de Salud y UFPSO
     const institutions = window.OcanaGeoPoints?.institutions || [];
     institutions.forEach(inst => {
       const marker = window.L.circleMarker([inst.lat, inst.lng], {
@@ -1938,7 +2245,6 @@ const App = {
       this.leafletMarkersLayer.addLayer(marker);
     });
 
-    // 2. Marcadores de Mascotas Censadas por Barrios en Ocaña
     this.db.pets.forEach(pet => {
       const lat = pet.lat || 8.2377;
       const lng = pet.lng || -73.3560;
@@ -2002,9 +2308,6 @@ const App = {
     });
   },
 
-  /**
-   * Exporta la matriz epidemiológica a un archivo CSV compatible con Microsoft Excel
-   */
   exportEpidemiologyCSV() {
     const headers = [
       'ID_REGISTRO',
@@ -2056,9 +2359,56 @@ const App = {
 
   /**
    * ==========================================================================
-   * Vista 7: Consola Interactiva de API Pública REST, Cloud y Respaldos
+   * Vista 7 (EXCLUSIVA ADMINISTRADOR): Permisos API, Tokens, Recopilaciones y Cloud
    * ==========================================================================
    */
+  regenerateAdminApiToken() {
+    if (!this.currentUser || this.currentUser.role !== 'ADMINISTRADOR') return;
+    const randomHex = Array.from({ length: 4 }, () => Math.random().toString(16).substring(2, 6)).join('');
+    const newToken = `tok_live_ocana_${randomHex}_ufpso`;
+    this.currentUser.apiToken = newToken;
+
+    const idx = this.db.users.findIndex(u => u.id === this.currentUser.id);
+    if (idx !== -1) {
+      this.db.users[idx].apiToken = newToken;
+      window.DataStore.saveData(this.db);
+    }
+
+    window.GoogleCloudConfig.recordSyncEvent('TOKEN_ROTATION', 'auditoria_accesos', `Nuevo token maestro generado por ${this.currentUser.name}`);
+    this.renderCloudStatusView();
+    this.showToast('Nuevo Token de Acceso API generado y almacenado.', 'success');
+  },
+
+  copyAdminApiToken() {
+    const tokenEl = document.getElementById('admin-master-api-token');
+    if (tokenEl) {
+      this.copyTextToClipboard(tokenEl.value, 'Token Maestro de API copiado al portapapeles.');
+    }
+  },
+
+  renderAdminCollectionInspector(collectionKey) {
+    this.adminSelectedCollection = collectionKey;
+    const outputEl = document.getElementById('admin-collection-json-preview');
+    const titleEl = document.getElementById('admin-collection-title');
+    if (!outputEl) return;
+
+    let dataSlice = [];
+    if (collectionKey === 'usuarios_sistema') {
+      dataSlice = this.db.users;
+    } else if (collectionKey === 'mascotas_censo') {
+      dataSlice = this.db.pets;
+    } else if (collectionKey === 'historial_biologicos') {
+      dataSlice = this.db.vaccinations;
+    } else if (collectionKey === 'auditoria_accesos') {
+      dataSlice = window.GoogleCloudConfig.getSyncLogs();
+    }
+
+    if (titleEl) {
+      titleEl.textContent = `Recopilación: ${collectionKey} (${dataSlice.length} documentos)`;
+    }
+    outputEl.textContent = JSON.stringify(dataSlice, null, 2);
+  },
+
   async testLiveAPIEndpoint(endpointType) {
     const methodEl = document.getElementById('api-console-method');
     const urlEl = document.getElementById('api-console-url');
@@ -2133,20 +2483,39 @@ const App = {
   },
 
   renderCloudStatusView() {
+    if (!this.currentUser || this.currentUser.role !== 'ADMINISTRADOR') return;
+
     const cfg = window.GoogleCloudConfig.getConfig();
     const projInput = document.getElementById('gcp-project-id');
     const keyInput = document.getElementById('gcp-api-key');
     const webhookInput = document.getElementById('gcp-webhook-url');
     const regionInput = document.getElementById('gcp-region');
     const enabledCheck = document.getElementById('gcp-enabled');
+    const tokenInput = document.getElementById('admin-master-api-token');
 
     if (projInput) projInput.value = cfg.projectId || '';
     if (keyInput) keyInput.value = cfg.apiKey || '';
     if (webhookInput) webhookInput.value = cfg.publicWebhookUrl || '';
     if (regionInput) regionInput.value = cfg.region || 'us-east1';
     if (enabledCheck) enabledCheck.checked = Boolean(cfg.enabled);
+    if (tokenInput) {
+      tokenInput.value = this.currentUser.apiToken || 'tok_live_ocana_9f8e7d6c5b4a3210_ufpso';
+    }
 
+    // Contadores de Recopilaciones (Colecciones)
+    const countUsers = document.getElementById('col-count-users');
+    const countPets = document.getElementById('col-count-pets');
+    const countVacs = document.getElementById('col-count-vacs');
+    const countLogs = document.getElementById('col-count-logs');
     const logs = window.GoogleCloudConfig.getSyncLogs();
+
+    if (countUsers) countUsers.textContent = `${this.db.users.length} docs`;
+    if (countPets) countPets.textContent = `${this.db.pets.length} docs`;
+    if (countVacs) countVacs.textContent = `${this.db.vaccinations.length} docs`;
+    if (countLogs) countLogs.textContent = `${logs.length} eventos`;
+
+    this.renderAdminCollectionInspector(this.adminSelectedCollection);
+
     const logsContainer = document.getElementById('cloud-sync-logs-tbody');
     if (logsContainer) {
       if (logs.length === 0) {
@@ -2171,6 +2540,8 @@ const App = {
   },
 
   handleSaveCloudConfig() {
+    if (!this.currentUser || this.currentUser.role !== 'ADMINISTRADOR') return;
+
     const projectId = document.getElementById('gcp-project-id').value.trim();
     const apiKey = document.getElementById('gcp-api-key').value.trim();
     const publicWebhookUrl = document.getElementById('gcp-webhook-url')?.value.trim() || '';
@@ -2180,7 +2551,7 @@ const App = {
     window.GoogleCloudConfig.saveConfig({ projectId, apiKey, publicWebhookUrl, region, enabled });
     this.renderHeaderAndSidebar();
     this.renderCloudStatusView();
-    this.showToast('Parámetros de conexión Cloud Firestore y Webhook API guardados correctamente.', 'success');
+    this.showToast('Parámetros de conexión Cloud Firestore, Tokens y Webhook API guardados correctamente.', 'success');
   },
 
   exportDatabaseBackup() {

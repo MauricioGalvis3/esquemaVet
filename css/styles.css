@@ -1,6 +1,6 @@
 /* ==========================================================================
    EsquemaVet Ocaña - Plataforma de Gestión Clínica y Vigilancia Sanitaria
-   Estilos de Producción (Versión Entregable Profesional - Feria de Proyectos)
+   Estilos de Producción (Versión Entregable Profesional - Desktop & Móvil)
    ========================================================================== */
 
 :root {
@@ -8,6 +8,10 @@
   --primary-dark: #0f766e;
   --secondary: #0284c7;
   --bg-app: #f1f5f9;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -19,13 +23,13 @@ body {
 
 /* Animaciones suaves de vistas y modales */
 .view-section {
-  animation: slideUpFade 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUpFade 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUpFade {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -38,6 +42,68 @@ body {
   background: radial-gradient(circle at 15% 20%, rgba(20, 184, 166, 0.24) 0%, transparent 45%),
               radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.26) 0%, transparent 50%),
               linear-gradient(135deg, #042f2e 0%, #0f172a 60%, #082f49 100%);
+}
+
+/* Botones de menú uniformes y parejos (Desktop Sidebar) */
+.sidebar-menu-btn {
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.sidebar-menu-btn-active {
+  background-color: #0d9488;
+  color: #ffffff;
+  box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.35);
+}
+
+.sidebar-menu-btn-inactive {
+  background-color: transparent;
+  color: #475569;
+}
+
+.sidebar-menu-btn-inactive:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Barra de Navegación Inferior Fija para Móviles (Evita perderse en el scroll) */
+.mobile-bottom-nav {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -8px 25px -5px rgba(15, 23, 42, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mobile-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  border-top: 3px solid transparent;
+}
+
+.mobile-tab-btn-active {
+  color: #0d9488;
+  border-top-color: #0d9488;
+  background-color: rgba(240, 253, 250, 0.65);
+}
+
+.mobile-tab-btn-inactive {
+  color: #64748b;
 }
 
 /* Diseño del Carnet Sanitario Oficial */

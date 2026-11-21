@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EsquemaVet Ocaña | Plataforma de Historiales Sanitarios, API Pública y Vacunación de Mascotas</title>
+  <title>EsquemaVet Ocaña | Plataforma de Historiales Sanitarios y Vacunación de Mascotas</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js para visualización analítica y epidemiológica -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <!-- Generador de Códigos QR Reales ISO/IEC 18004 Escaneables -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-  <!-- Leaflet CSS & JS (OpenStreetMap API para Georreferenciación en Ocaña) -->
+  <!-- Leaflet CSS & JS (OpenStreetMap para Georreferenciación en Ocaña) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Lucide Icons para iconografía médica y ejecutiva -->
@@ -25,7 +25,7 @@
 <body class="min-h-screen flex flex-col">
 
   <!-- Contenedor de Notificaciones Flotantes -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full px-4 pointer-events-auto no-print"></div>
+  <div id="toast-container" class="fixed bottom-20 lg:bottom-5 right-4 z-50 flex flex-col gap-2.5 max-w-md w-full px-4 pointer-events-auto no-print"></div>
 
   <!-- ========================================================================
        MODAL 1: VALIDADOR PÚBLICO DE CERTIFICADO SANITARIO Y CÓDIGO QR
@@ -60,7 +60,7 @@
       <div id="public-verify-result-body" class="p-6 overflow-y-auto space-y-4 flex-1"></div>
 
       <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-        <span>Trazabilidad Criptográfica SHA-256 • Red Municipal EsquemaVet Ocaña</span>
+        <span>Verificación Oficial • Red Municipal EsquemaVet Ocaña</span>
         <button onclick="App.closePublicVerifierModal()" class="px-4 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold">
           Cerrar
         </button>
@@ -78,7 +78,7 @@
           <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
             🎓 Feria de Proyectos • Ingeniería de Sistemas UFPSO (2026)
           </span>
-          <h3 class="text-xl font-extrabold mt-1">EsquemaVet Ocaña — Acceso Público Web y Arquitectura API</h3>
+          <h3 class="text-xl font-extrabold mt-1">EsquemaVet Ocaña — Acceso Público Web y Verificación QR</h3>
           <p class="text-xs text-teal-200/90 mt-0.5">Autores: Franklin Mauricio Hernández Galvis (0192326) & Andrés Felipe Carrascal Gómez (0192321)</p>
         </div>
         <button onclick="App.closeFairPresentationModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold">
@@ -104,51 +104,19 @@
               </button>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed">
-              Los jurados y asistentes de la feria pueden escanear el código QR de la izquierda para abrir <strong>EsquemaVet Ocaña</strong> en sus teléfonos o escanear directamente el QR de cualquier <strong>Carnet Sanitario Digital</strong> para validar su autenticidad en tiempo real.
+              Escanea el código QR para abrir <strong>EsquemaVet Ocaña</strong> desde cualquier teléfono móvil o prueba directamente los perfiles separados del sistema:
             </p>
             <div class="flex flex-wrap gap-2 pt-1">
-              <button onclick="App.closeFairPresentationModal(); App.openPublicVerifierModal('OCA-PET-001');" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">
-                🔍 Probar Validador QR (Max • OCA-PET-001)
+              <button onclick="App.closeFairPresentationModal(); App.quickAccountSelect('USR-PRO-01');" class="px-3 py-1.5 rounded-xl bg-sky-100 text-sky-900 text-xs font-bold hover:bg-sky-200">
+                👤 Vista Propietario
               </button>
               <button onclick="App.closeFairPresentationModal(); App.quickAccountSelect('USR-VET-01');" class="px-3 py-1.5 rounded-xl bg-teal-100 text-teal-900 text-xs font-bold hover:bg-teal-200">
-                🩺 Demo Rol Médico Veterinario
+                🩺 Vista Veterinario
               </button>
-              <button onclick="App.closeFairPresentationModal(); App.quickAccountSelect('USR-ENT-01'); App.navigateTo('epidemiology');" class="px-3 py-1.5 rounded-xl bg-indigo-100 text-indigo-900 text-xs font-bold hover:bg-indigo-200">
-                🗺️ Ver Mapa Epidemiológico Ocaña
+              <button onclick="App.closeFairPresentationModal(); App.quickAccountSelect('USR-ADM-01'); App.navigateTo('cloud');" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200">
+                ⚙️ Vista Administrador (API & Tokens)
               </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Resumen de Integraciones API en Vivo -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-          <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-1">
-            <div class="font-bold text-teal-800 flex items-center justify-between">
-              <span>1. API Biometeorológica Open-Meteo (REST)</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">EN VIVO</span>
-            </div>
-            <p class="text-slate-600">Conectada a las coordenadas oficiales de Ocaña (8.2377° N, 73.3560° O) para calcular el riesgo de vectores zoonóticos (garrapatas y pulgas) según temperatura y humedad reales.</p>
-          </div>
-          <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-1">
-            <div class="font-bold text-sky-800 flex items-center justify-between">
-              <span>2. Cartografía OpenStreetMap + Leaflet API</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">EN VIVO</span>
-            </div>
-            <p class="text-slate-600">Georreferenciación interactiva por barrios de Ocaña (La Primavera, El Carmen, Santa Clara, Centro, UFPSO) y clínicas veterinarias acreditadas.</p>
-          </div>
-          <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-1">
-            <div class="font-bold text-indigo-800 flex items-center justify-between">
-              <span>3. Códigos QR ISO/IEC 18004 + Deep Linking</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">VERIFICABLE</span>
-            </div>
-            <p class="text-slate-600">Cada carnet genera un QR vectorial escaneable con cualquier celular que enlaza a <code>?verify=OCA-PET-XXX</code> con firma criptográfica SHA-256.</p>
-          </div>
-          <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-1">
-            <div class="font-bold text-amber-800 flex items-center justify-between">
-              <span>4. Google Cloud Firestore REST + WhatsApp API</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">INTEGRADO</span>
-            </div>
-            <p class="text-slate-600">Sincronización documental en la nube, consola interactiva de endpoints OpenAPI y despacho directo de alertas preventivas vía WhatsApp Oficial (<code>wa.me</code>).</p>
           </div>
         </div>
       </div>
@@ -156,14 +124,14 @@
       <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
         <span>Docente Asesora: MSc. Yegny Karina Amaya Torrado • UFPSO</span>
         <button onclick="App.closeFairPresentationModal()" class="px-4 py-1.5 rounded-xl bg-slate-900 text-white font-bold">
-          Entendido
+          Cerrar
         </button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================================
-       MODAL 3: DESPACHO DE RECORDATORIO PREVENTIVO VÍA WHATSAPP API
+       MODAL 3: DESPACHO DE RECORDATORIO PREVENTIVO VÍA WHATSAPP
        ======================================================================== -->
   <div id="whatsapp-reminder-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 no-print">
     <div class="bg-white text-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-[slideUpFade_0.25s_ease-out]">
@@ -189,7 +157,7 @@
           </button>
           <a id="wa-modal-direct-link" href="#" target="_blank" rel="noopener noreferrer" onclick="App.onWhatsAppLaunched()"
             class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition inline-flex items-center gap-1.5">
-            <span>💬 Abrir y Enviar en WhatsApp Oficial</span>
+            <span>💬 Abrir y Enviar en WhatsApp</span>
           </a>
         </div>
       </div>
@@ -201,107 +169,109 @@
        ======================================================================== -->
   <section id="auth-screen" class="min-h-screen flex flex-col justify-between auth-bg-gradient text-white p-4 md:p-8">
     <!-- Encabezado Institucional -->
-    <div class="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
-      <div class="flex items-center gap-3.5">
+    <div class="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+      <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 shadow-lg">
           <i data-lucide="shield-plus" class="w-6 h-6"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white">EsquemaVet Ocaña</h1>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-400/20 text-teal-200 border border-teal-400/30">v2.5 Cloud & API</span>
-          </div>
-          <p class="text-xs text-teal-200/90">Red Municipal de Historiales Sanitarios y Control de Vacunación Animal</p>
+          <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white">EsquemaVet Ocaña</h1>
+          <p class="text-xs text-teal-200/90">Historiales Sanitarios y Control de Vacunación Animal</p>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2.5">
-        <!-- Indicador API Clima Ocaña en Vivo -->
-        <div id="auth-weather-pill" onclick="App.openFairPresentationModal()" class="cursor-pointer px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs flex items-center gap-2 transition" title="Conectado en tiempo real a Open-Meteo API Ocaña">
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="auth-weather-pill" class="hidden sm:flex px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Ocaña API: Cargando telemetría...</span>
+          <span>Clima Ocaña...</span>
         </div>
 
         <button onclick="App.openFairPresentationModal()" class="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition flex items-center gap-1.5">
-          <span>🎓 Modo Feria UFPSO & QR Web</span>
+          <span>🎓 QR Feria UFPSO</span>
         </button>
       </div>
     </div>
 
     <!-- Cuerpo Central -->
-    <div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 my-auto py-8 items-center">
-      <!-- Presentación de la Plataforma, Validador Público QR y Cuentas Verificadas -->
+    <div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto py-6 items-center">
+      <!-- Columna Izquierda: Información, Validador QR y Selector de los 4 Perfiles -->
       <div class="lg:col-span-7 space-y-5">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/15 border border-teal-400/30 text-teal-200 text-xs font-semibold">
           <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400"></i>
-          <span>Plataforma Oficial de Trazabilidad e Inmunización Veterinaria • Ocaña, N. de S.</span>
+          <span>Plataforma Oficial de Salud y Bienestar Animal • Ocaña, N. de S.</span>
         </div>
 
-        <h2 class="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight text-white">
-          El historial clínico y carnet de vacunación de tu mascota, siempre verificable en la web.
+        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-white">
+          El carnet sanitario y esquema de vacunación de tu mascota, siempre al día.
         </h2>
 
         <p class="text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl">
-          Conectamos a las clínicas veterinarias, propietarios y autoridades sanitarias del municipio de Ocaña mediante carnets digitales con código QR real, firmas profesionales verificadas, georreferenciación y monitoreo epidemiológico conectado a APIs públicas.
+          Consulte el carnet digital verificable con código QR, reciba recordatorios oportunos de vacunación o desparasitación y acceda al seguimiento clínico respaldado por médicos veterinarios de Ocaña.
         </p>
 
-        <!-- NUEVO: Validador Público de Carnet y Certificados QR (Sin necesidad de iniciar sesión) -->
-        <div class="p-4 md:p-5 rounded-2xl bg-teal-950/60 border border-teal-400/30 backdrop-blur-md space-y-3 shadow-xl">
-          <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Consulta Pública de Carnet / QR (Sin iniciar sesión) -->
+        <div class="p-4 rounded-2xl bg-teal-950/60 border border-teal-400/30 backdrop-blur-md space-y-2.5 shadow-xl">
+          <div class="flex items-center justify-between">
             <span class="text-xs font-extrabold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-              <i data-lucide="qr-code" class="w-4 h-4"></i> Consulta y Verificación Pública de Carnet / QR (Acceso Ciudadano)
-            </span>
-            <span class="text-[11px] text-teal-200/80 bg-teal-500/20 px-2 py-0.5 rounded-full border border-teal-400/20">
-              API Pública Activa
+              <i data-lucide="qr-code" class="w-4 h-4"></i> Verificar Carnet o Certificado QR (Consulta Rápida)
             </span>
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="landing-public-verify-input" type="text" placeholder="Ingrese Código (Ej. OCA-PET-001), Microchip (COL-OCA-98102) o Firma Digital..."
+            <input id="landing-public-verify-input" type="text" placeholder="Ej. OCA-PET-001, Microchip o Cédula del propietario..."
               class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-400 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-teal-400" />
             <button onclick="App.verifyFromLandingInput()" class="px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-xs shadow-md transition shrink-0">
-              🔍 Validar Certificado
+              🔍 Consultar Carnet
             </button>
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-300">
-            <span>Prueba rápida en feria:</span>
-            <button onclick="App.openPublicVerifierModal('OCA-PET-001')" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-teal-200 font-mono">OCA-PET-001 (Max)</button>
-            <button onclick="App.openPublicVerifierModal('OCA-PET-002')" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-teal-200 font-mono">OCA-PET-002 (Luna)</button>
-            <button onclick="App.openPublicVerifierModal('OCA-PET-003')" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-amber-200 font-mono">OCA-PET-003 (Rocky)</button>
-            <button onclick="App.openPublicVerifierModal('SIG-VET01-8F92A1C4')" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-sky-200 font-mono">Firma: SIG-VET01-8F92A1C4</button>
           </div>
         </div>
 
-        <!-- Selector de Perfiles Activos para Inspección Rápida -->
-        <div class="bg-slate-900/70 backdrop-blur-md border border-white/10 rounded-2xl p-5 space-y-3">
+        <!-- Selector Parejo de los 4 Perfiles del Sistema (Propietario, Veterinario, Salud Pública, Administrador) -->
+        <div class="bg-slate-900/75 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-5 space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-              <i data-lucide="users" class="w-4 h-4"></i> Cuentas Institucionales Precargadas (Demo 1 Clic)
+              <i data-lucide="users" class="w-4 h-4"></i> Acceso Rápido por Tipo de Perfil (1 Clic)
             </span>
-            <span class="text-[11px] text-slate-400">Seleccione un rol para explorar</span>
+            <span class="text-[11px] text-slate-400">4 Roles Diferenciados</span>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button onclick="App.quickAccountSelect('USR-PRO-01')" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition group">
-              <div class="text-[11px] font-bold text-sky-400">PROPIETARIO</div>
-              <div class="font-bold text-sm text-white mt-0.5 group-hover:text-sky-200">Franklin Hernández</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">Mascotas: Max y Luna</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button onclick="App.quickAccountSelect('USR-PRO-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 w-fit">Propietario</span>
+              <div>
+                <div class="font-bold text-xs text-white truncate">Franklin Hernández</div>
+                <div class="text-[10px] text-slate-400 truncate">Carnet y Mis Mascotas</div>
+              </div>
             </button>
-            <button onclick="App.quickAccountSelect('USR-VET-01')" class="p-3.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-left transition group">
-              <div class="text-[11px] font-bold text-teal-300">MÉDICO VETERINARIO</div>
-              <div class="font-bold text-sm text-white mt-0.5 group-hover:text-amber-200">Dr. Carlos Quintero</div>
-              <div class="text-[11px] text-teal-100/80 mt-0.5">Clínica Vet. San Francisco</div>
+
+            <button onclick="App.quickAccountSelect('USR-VET-01')" class="p-3 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-left transition flex flex-col justify-between h-24">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-400/20 text-teal-200 w-fit">Veterinario</span>
+              <div>
+                <div class="font-bold text-xs text-white truncate">Dr. Carlos Quintero</div>
+                <div class="text-[10px] text-teal-100/80 truncate">Pacientes y Vacunación</div>
+              </div>
             </button>
-            <button onclick="App.quickAccountSelect('USR-ENT-01')" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition group">
-              <div class="text-[11px] font-bold text-indigo-300">SALUD PÚBLICA</div>
-              <div class="font-bold text-sm text-white mt-0.5 group-hover:text-indigo-200">Secretaría de Salud</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">Mapa y Censo Ocaña</div>
+
+            <button onclick="App.quickAccountSelect('USR-ENT-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 w-fit">Salud Pública</span>
+              <div>
+                <div class="font-bold text-xs text-white truncate">Secretaría de Salud</div>
+                <div class="text-[10px] text-slate-400 truncate">Censo y Mapa Ocaña</div>
+              </div>
+            </button>
+
+            <button onclick="App.quickAccountSelect('USR-ADM-01')" class="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-left transition flex flex-col justify-between h-24">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 w-fit">Administrador</span>
+              <div>
+                <div class="font-bold text-xs text-white truncate">Admin. del Sistema</div>
+                <div class="text-[10px] text-amber-200/80 truncate">API, Tokens y Cloud BD</div>
+              </div>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Tarjeta de Inicio de Sesión y Registro con Credenciales Verificables -->
-      <div class="lg:col-span-5 bg-white text-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-slate-100">
-        <!-- Pestañas -->
+      <!-- Columna Derecha: Tarjeta de Inicio de Sesión y Registro -->
+      <div class="lg:col-span-5 bg-white text-slate-800 rounded-3xl shadow-2xl p-6 md:p-7 border border-slate-100">
+        <!-- Pestañas Parejas -->
         <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
           <button id="tab-btn-login" onclick="App.switchAuthTab('login')" class="flex-1 py-2.5 text-sm font-bold rounded-xl bg-teal-600 text-white shadow-sm transition">
             Iniciar Sesión
@@ -315,7 +285,7 @@
         <div id="auth-login-pane">
           <form id="login-form" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Correo Electrónico o Documento de Identidad</label>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Correo Electrónico o Documento</label>
               <input id="login-identifier" type="text" required value="dr.quintero@vetocana.com"
                 placeholder="Ingrese su correo o número de cédula"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
@@ -338,29 +308,30 @@
                 <input id="login-remember" type="checkbox" checked class="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
                 <span>Mantener sesión iniciada</span>
               </label>
-              <span class="text-teal-700 font-semibold">Cifrado SHA-256 Activo</span>
+              <span class="text-teal-700 font-semibold">Acceso Seguro</span>
             </div>
 
             <button type="submit" class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition">
-              Acceder a mi Cuenta
+              Ingresar a la Plataforma
             </button>
           </form>
 
           <div class="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-            <div class="font-bold text-slate-700">¿Registró una cuenta nueva?</div>
-            <p>Puede ingresar con el <strong>correo electrónico</strong> o <strong>número de documento</strong> y la contraseña que haya registrado.</p>
+            <div class="font-bold text-slate-700">Credenciales de acceso rápido:</div>
+            <div>• <strong>Propietario:</strong> <code class="text-teal-700">fmhernandezg@ufpso.edu.co</code> / <code class="bg-slate-100 px-1 rounded">Ocanavet2026*</code></div>
+            <div>• <strong>Veterinario:</strong> <code class="text-teal-700">dr.quintero@vetocana.com</code> / <code class="bg-slate-100 px-1 rounded">VetOcana2026*</code></div>
+            <div>• <strong>Administrador:</strong> <code class="text-amber-700">admin@esquemavet.co</code> / <code class="bg-slate-100 px-1 rounded">AdminOcana2026*</code></div>
           </div>
         </div>
 
-        <!-- Formulario 2: Registro de Nuevas Cuentas con Almacenamiento y Verificación -->
+        <!-- Formulario 2: Registro de Nuevas Cuentas -->
         <div id="auth-register-pane" class="hidden">
           <form id="register-form" class="space-y-3.5">
             <div>
-              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tipo de Cuenta</label>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tipo de Perfil</label>
               <select id="reg-role" onchange="App.toggleRegisterRoleFields()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50">
                 <option value="PROPIETARIO">Propietario o Responsable de Mascota</option>
                 <option value="VETERINARIO">Médico Veterinario Acreditado</option>
-                <option value="ENTIDAD_SANITARIA">Autoridad / Entidad de Salud Pública</option>
               </select>
             </div>
 
@@ -370,8 +341,8 @@
                 <input id="reg-name" type="text" required placeholder="Nombres y apellidos" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Documento / NIT *</label>
-                <input id="reg-document" type="text" required placeholder="Número de identificación" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Documento (C.C.) *</label>
+                <input id="reg-document" type="text" required placeholder="Número de cédula" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
             </div>
 
@@ -387,7 +358,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección de Residencia o Consultorio</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Barrio o Dirección en Ocaña</label>
               <input id="reg-address" type="text" placeholder="Barrio / Calle, Ocaña" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
             </div>
 
@@ -396,12 +367,6 @@
               <div class="text-xs font-bold text-teal-900">Acreditación Profesional Veterinaria</div>
               <input id="reg-license" type="text" placeholder="N° Tarjeta Profesional (Ej. COMVEZCOL-60123) *" class="w-full px-3 py-2 rounded-lg border border-teal-300 text-xs bg-white" />
               <input id="reg-clinic" type="text" placeholder="Nombre de la Clínica o Consultorio en Ocaña" class="w-full px-3 py-2 rounded-lg border border-teal-300 text-xs bg-white" />
-            </div>
-
-            <!-- Campos para Entidad de Salud -->
-            <div id="reg-ent-extra" class="hidden p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 space-y-2">
-              <div class="text-xs font-bold text-indigo-900">Identificación de Dependencia Sanitaria</div>
-              <input id="reg-entity-code" type="text" placeholder="Código de Dependencia (Ej. INS-OCANA-ZOO)" class="w-full px-3 py-2 rounded-lg border border-indigo-300 text-xs bg-white" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -422,7 +387,6 @@
               </div>
               <div class="flex justify-between items-center">
                 <span id="reg-pass-label" class="text-[11px] font-semibold text-slate-400">Seguridad: Sin ingresar</span>
-                <span class="text-[10px] text-slate-400">Almacenamiento Cifrado Verificable</span>
               </div>
             </div>
 
@@ -437,140 +401,106 @@
     <!-- Pie Institucional -->
     <div class="max-w-6xl w-full mx-auto text-center md:flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4">
       <div>Desarrollado por: <strong class="text-slate-200">Franklin Mauricio Hernández Galvis (0192326)</strong> & <strong class="text-slate-200">Andrés Felipe Carrascal Gómez (0192321)</strong></div>
-      <div>Universidad Francisco de Paula Santander Seccional Ocaña (UFPSO) • Proyecto Integrador I • 2026</div>
+      <div>Universidad Francisco de Paula Santander Seccional Ocaña (UFPSO) • 2026</div>
     </div>
   </section>
 
   <!-- ========================================================================
-       ENTORNO EJECUTIVO PRINCIPAL DEL APLICATIVO
+       ENTORNO PRINCIPAL DEL APLICATIVO (DESKTOP Y MÓVIL OPTIMIZADO)
        ======================================================================== -->
-  <div id="main-app-shell" class="hidden min-h-screen flex flex-col bg-slate-100/80">
+  <div id="main-app-shell" class="hidden min-h-screen flex flex-col bg-slate-100/80 pb-24 lg:pb-8">
 
-    <!-- Cabecera Superior -->
+    <!-- Cabecera Superior Fija -->
     <header class="bg-white border-b border-slate-200/90 sticky top-0 z-30 no-print shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         <!-- Identidad Visual -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-sm shrink-0">
             <i data-lucide="shield-plus" class="w-5 h-5"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-extrabold text-slate-900 text-base tracking-tight">EsquemaVet Ocaña</span>
-              <span id="header-cloud-badge" onclick="App.navigateTo('cloud')" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer">
-                <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-                <span>API & Cloud Activo</span>
-              </span>
+              <span class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight">EsquemaVet Ocaña</span>
+              <!-- Badge visible EXCLUSIVAMENTE para el perfil ADMINISTRADOR -->
+              <span id="header-cloud-badge" onclick="App.navigateTo('cloud')" class="hidden"></span>
             </div>
-            <p class="text-xs text-slate-500">Sistema de Gestión de Historiales Sanitarios y Vacunación Animal • UFPSO</p>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Gestión de Historiales Sanitarios y Vacunación de Mascotas</p>
           </div>
         </div>
 
         <!-- Controles de Usuario y Notificaciones -->
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button onclick="App.openFairPresentationModal()" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition flex items-center gap-1.5">
-            <span>🎓 QR Feria</span>
+        <div class="flex items-center gap-2">
+          <button onclick="App.openPublicVerifierModal(App.selectedPetId || 'OCA-PET-001')" class="hidden sm:flex px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition items-center gap-1">
+            <span>🔍 Verificar QR</span>
           </button>
 
-          <button onclick="App.openPublicVerifierModal(App.selectedPetId || 'OCA-PET-001')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1">
-            <span>🔍 Validador QR</span>
-          </button>
-
-          <!-- Selector de cambio rápido de cuenta para pruebas -->
+          <!-- Selector de cambio rápido de rol en Desktop -->
           <div class="hidden xl:flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-            <span class="text-xs font-semibold text-slate-500">Rol activo:</span>
+            <span class="text-xs font-semibold text-slate-500">Cambiar perfil:</span>
             <select id="account-quick-switcher" onchange="App.quickAccountSelect(this.value)" class="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none">
             </select>
           </div>
 
-          <button onclick="App.navigateTo('dashboard')" class="relative px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold hover:bg-amber-100 transition flex items-center gap-1.5" title="Ver alertas de refuerzos">
-            <span>🔔 Alertas</span>
+          <button onclick="App.navigateTo('dashboard')" class="relative px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold hover:bg-amber-100 transition flex items-center gap-1" title="Ver alertas de refuerzos">
+            <span>🔔</span>
+            <span class="hidden md:inline">Alertas</span>
             <span id="header-alert-count" class="px-1.5 py-0.2 bg-amber-500 text-white rounded-full text-[11px] font-extrabold">0</span>
           </button>
 
-          <div class="text-right border-l border-slate-200 pl-3">
-            <div id="header-user-name" class="text-xs font-bold text-slate-900">Usuario</div>
-            <span id="header-user-role" class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold">Perfil</span>
+          <div class="text-right border-l border-slate-200 pl-2.5 hidden sm:block">
+            <div id="header-user-name" class="text-xs font-bold text-slate-900 truncate max-w-[160px]">Usuario</div>
+            <span id="header-user-role" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold">Perfil</span>
           </div>
 
-          <button onclick="App.logout()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-slate-700 border border-slate-200 text-xs font-bold transition">
+          <button onclick="App.logout()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-slate-700 border border-slate-200 text-xs font-bold transition">
             Salir
           </button>
         </div>
       </div>
+
+      <!-- Sub-barra Móvil: Muestra sección actual y cambio rápido de perfil sin ocupar todo el scroll -->
+      <div class="lg:hidden bg-slate-50 border-t border-slate-200/80 px-4 py-2 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5 text-xs font-extrabold text-teal-800 truncate">
+          <span class="w-2 h-2 rounded-full bg-teal-600 shrink-0"></span>
+          <span id="mobile-current-section-title" class="truncate">Inicio</span>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <select id="mobile-account-switcher" onchange="App.quickAccountSelect(this.value)" class="text-[11px] font-bold bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-800 max-w-[175px]">
+          </select>
+        </div>
+      </div>
     </header>
 
+    <!-- Barra de Navegación Inferior Fija para Móviles (Evita perderse en el scroll) -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 mobile-bottom-nav no-print">
+      <div id="mobile-bottom-nav-grid" class="grid max-w-md mx-auto"></div>
+    </nav>
+
     <!-- Cuerpo Principal -->
-    <div class="max-w-7xl w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 py-6">
+    <div class="max-w-7xl w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 py-5">
 
-      <!-- Navegación Lateral -->
-      <aside class="lg:col-span-3 space-y-4 no-print">
-        <div class="bg-white rounded-2xl border border-slate-200/90 p-3 shadow-sm space-y-1">
-          <div class="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Menú Principal
+      <!-- Navegación Lateral Pareja (Solo Escritorio: hidden lg:block) -->
+      <aside class="hidden lg:block lg:col-span-3 space-y-4 no-print">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-sm space-y-2 sticky top-20">
+          <div class="px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+            Menú de Navegación
           </div>
 
-          <button id="nav-btn-dashboard" onclick="App.navigateTo('dashboard')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold bg-teal-600 text-white shadow-sm transition">
-            <span class="flex items-center gap-2.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Panel de Control</span>
-          </button>
+          <!-- Renderizado dinámico con botones 100% parejos según el Rol -->
+          <div id="desktop-sidebar-nav" class="space-y-1.5"></div>
 
-          <button id="nav-btn-carnet" onclick="App.navigateTo('carnet')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-            <span class="flex items-center gap-2.5"><i data-lucide="id-card" class="w-4 h-4"></i> Carnet Sanitario Digital</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-bold">QR</span>
-          </button>
-
-          <button id="nav-btn-pets" onclick="App.navigateTo('pets')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-            <span class="flex items-center gap-2.5"><i data-lucide="dog" class="w-4 h-4"></i> Directorio de Mascotas</span>
-          </button>
-
-          <div id="nav-item-vaccinate">
-            <button id="nav-btn-vaccinate" onclick="App.navigateTo('vaccinate')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-              <span class="flex items-center gap-2.5"><i data-lucide="syringe" class="w-4 h-4"></i> Aplicar Biológico</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Clínico</span>
-            </button>
-          </div>
-
-          <button id="nav-btn-users" onclick="App.navigateTo('users')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-            <span class="flex items-center gap-2.5"><i data-lucide="user-check" class="w-4 h-4"></i> Mi Cuenta y Usuarios</span>
-          </button>
-
-          <div id="nav-item-epidemiology">
-            <button id="nav-btn-epidemiology" onclick="App.navigateTo('epidemiology')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-              <span class="flex items-center gap-2.5"><i data-lucide="map-pin" class="w-4 h-4"></i> Vigilancia y Mapa Ocaña</span>
-            </button>
-          </div>
-
-          <button id="nav-btn-cloud" onclick="App.navigateTo('cloud')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-            <span class="flex items-center gap-2.5"><i data-lucide="cloud-cog" class="w-4 h-4"></i> API Pública & Cloud</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 font-bold">REST</span>
-          </button>
-        </div>
-
-        <!-- Monitor Biometeorológico Conectado a API Open-Meteo -->
-        <div id="sidebar-weather-card" class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm space-y-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase text-teal-700 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              API Clima & Vectores Ocaña
-            </span>
-            <button onclick="App.refreshWeatherTelemetry(true)" class="text-[11px] text-slate-400 hover:text-teal-700 font-semibold">↻</button>
-          </div>
-          <div id="sidebar-weather-body" class="text-xs text-slate-600">
-            Consultando Open-Meteo API...
-          </div>
-        </div>
-
-        <!-- Tarjeta Informativa de Salud Pública Ocaña -->
-        <div class="bg-gradient-to-br from-teal-900 to-slate-900 text-white rounded-2xl p-4 shadow-sm space-y-2.5">
-          <div class="flex items-center gap-2 text-teal-300 text-xs font-bold uppercase">
-            <i data-lucide="heart-pulse" class="w-4 h-4"></i>
-            <span>Compromiso Sanitario Ocaña</span>
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            La inmunización oportuna de caninos y felinos protege la salud pública del municipio y cumple con la meta del ODS 3 (Salud y Bienestar).
-          </p>
-          <div class="pt-1 text-[11px] text-teal-300 font-semibold">
-            UFPSO • Ingeniería de Sistemas 2026
+          <!-- Estado Ambiental Resumido en Barra Lateral -->
+          <div class="pt-3 mt-3 border-t border-slate-100 space-y-2">
+            <div class="flex items-center justify-between px-1">
+              <span class="text-[11px] font-bold uppercase text-teal-700 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Ambiente en Ocaña
+              </span>
+              <button onclick="App.refreshWeatherTelemetry(true)" class="text-xs text-slate-400 hover:text-teal-700 font-bold" title="Actualizar clima">↻</button>
+            </div>
+            <div id="sidebar-weather-body" class="text-xs text-slate-600 px-1">
+              Cargando clima de Ocaña...
+            </div>
           </div>
         </div>
       </aside>
@@ -579,45 +509,48 @@
       <main class="lg:col-span-9 space-y-6">
 
         <!-- ==================================================================
-             VISTA 1: PANEL DE CONTROL, TELEMETRÍA API Y RECORDATORIOS
+             VISTA 1: PANEL DE CONTROL CLARO Y PAREJO
              ================================================================== -->
-        <section id="view-dashboard" class="view-section space-y-6">
+        <section id="view-dashboard" class="view-section space-y-5">
           <!-- Banner de Bienvenida -->
-          <div id="dashboard-role-summary" class="carnet-header-banner rounded-3xl p-6 md:p-7 text-white shadow-lg"></div>
+          <div id="dashboard-role-summary" class="carnet-header-banner rounded-3xl p-5 md:p-7 text-white shadow-lg"></div>
 
-          <!-- Indicadores Principales -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
-              <div class="text-xs font-semibold text-slate-500">Mascotas Vinculadas</div>
+          <!-- Guía Rápida de 3 Acciones Parejas según el Usuario -->
+          <div id="dashboard-role-quicksteps" class="grid grid-cols-1 md:grid-cols-3 gap-3.5"></div>
+
+          <!-- Indicadores Principales (4 tarjetas de igual altura) -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+              <div class="text-xs font-semibold text-slate-500">Mascotas Asociadas</div>
               <div id="kpi-total-pets" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
-              <div class="text-[11px] text-teal-600 font-semibold mt-1">Fichas clínicas activas</div>
+              <div class="text-[11px] text-teal-600 font-semibold mt-1">Fichas activas</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
               <div class="text-xs font-semibold text-slate-500">Dosis Certificadas</div>
               <div id="kpi-total-vaccines" class="text-2xl font-extrabold text-teal-700 mt-1">0</div>
-              <div class="text-[11px] text-slate-500 mt-1">Vacunas y antiparasitarios</div>
+              <div class="text-[11px] text-slate-500 mt-1">Vacunas y controles</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
               <div class="text-xs font-semibold text-slate-500">Refuerzos Pendientes</div>
               <div id="kpi-urgent-alerts" class="text-2xl font-extrabold text-amber-600 mt-1">0</div>
-              <div class="text-[11px] text-amber-700 font-semibold mt-1">Próximos 30 días o vencidos</div>
+              <div class="text-[11px] text-amber-700 font-semibold mt-1">Próximos o vencidos</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
-              <div class="text-xs font-semibold text-slate-500">Propietarios Registrados</div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+              <div id="kpi-4-label" class="text-xs font-semibold text-slate-500">Propietarios Activos</div>
               <div id="kpi-total-owners" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
-              <div class="text-[11px] text-slate-500 mt-1">Red Municipal Ocaña</div>
+              <div id="kpi-4-sub" class="text-[11px] text-slate-500 mt-1">Red Municipal Ocaña</div>
             </div>
           </div>
 
-          <!-- Barra de Telemetría Biometeorológica en Vivo (Open-Meteo REST API) -->
+          <!-- Recomendación Ambiental en Ocaña -->
           <div id="dashboard-api-weather-banner" class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm"></div>
 
           <!-- Gráfica de Estado Inmunológico + Mascotas Recientes -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm flex flex-col justify-between">
               <div>
-                <h3 class="font-bold text-slate-900 text-base">Estado de Esquemas Preventivos</h3>
-                <p class="text-xs text-slate-500">Distribución actual de vigencia inmunológica</p>
+                <h3 class="font-bold text-slate-900 text-base">Resumen de Vigencia Sanitaria</h3>
+                <p class="text-xs text-slate-500">Estado actual de los esquemas de vacunación</p>
               </div>
               <div class="h-52 my-3 relative">
                 <canvas id="chart-dashboard-status"></canvas>
@@ -628,7 +561,7 @@
               <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div>
                   <h3 class="font-bold text-slate-900 text-base">Acceso Rápido a Mascotas</h3>
-                  <p class="text-xs text-slate-500">Seleccione un paciente para abrir su Carnet Sanitario Digital con QR</p>
+                  <p class="text-xs text-slate-500">Toque una mascota para abrir su Carnet Sanitario Digital</p>
                 </div>
                 <button onclick="App.navigateTo('pets')" class="text-xs font-bold text-teal-700 hover:underline">
                   Ver todas →
@@ -642,12 +575,12 @@
           <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
               <div>
-                <h3 class="font-bold text-slate-900 text-base">Calendario Preventivo y Despacho de Alertas WhatsApp</h3>
+                <h3 class="font-bold text-slate-900 text-base">Calendario Preventivo y Próximos Refuerzos</h3>
                 <p class="text-xs text-slate-500">
-                  Seguimiento automatizado de próximas aplicaciones con envío directo de recordatorios al WhatsApp del propietario.
+                  Control de fechas programadas para vacunas y desparasitaciones.
                 </p>
               </div>
-              <!-- Filtros de Alertas -->
+              <!-- Filtros de Alertas Parejos -->
               <div class="flex flex-wrap gap-1.5">
                 <button id="alert-filter-ALL" onclick="App.setAlertFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white shadow-sm transition">
                   Todos
@@ -674,19 +607,19 @@
           <!-- Mensaje informativo para Propietarios -->
           <div id="pet-citizen-notice" class="hidden p-4 rounded-2xl bg-sky-50 border border-sky-200 text-sky-950 text-sm flex items-center justify-between gap-4">
             <div>
-              <strong>Mis Mascotas Registradas:</strong> Aquí puede consultar la ficha técnica y el historial de sus animales de compañía. El ingreso inicial de un nuevo paciente al padrón sanitario lo realiza su Médico Veterinario durante la consulta.
+              <strong>Mis Mascotas Vinculadas:</strong> Aquí puedes consultar la ficha técnica y abrir el carnet digital de tus mascotas. El registro clínico de una nueva mascota lo realiza tu Médico Veterinario en consulta.
             </div>
           </div>
 
           <!-- Formulario de Apertura de Ficha Clínica de Mascota -->
-          <div id="pet-registration-panel" class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm">
+          <div id="pet-registration-panel" class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5">
               <div>
-                <span class="text-xs font-bold uppercase text-teal-700">Admisión y Georreferenciación de Pacientes</span>
-                <h2 class="text-lg font-bold text-slate-900">Registrar Nueva Mascota y Vincular Propietario</h2>
+                <span class="text-xs font-bold uppercase text-teal-700">Admisión Clínica</span>
+                <h2 class="text-lg font-bold text-slate-900">Registrar Nueva Mascota y Asociar Propietario</h2>
               </div>
               <span class="text-xs px-3 py-1 rounded-full bg-teal-50 text-teal-800 font-semibold border border-teal-200">
-                Identificación Única Municipal
+                Ficha Única de Paciente
               </span>
             </div>
 
@@ -743,7 +676,7 @@
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Código de Microchip / Placa</label>
-                <input id="pet-microchip" type="text" placeholder="Se genera código si se omite" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                <input id="pet-microchip" type="text" placeholder="Autogenerado si se omite" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
 
               <div class="md:col-span-2">
@@ -761,25 +694,25 @@
 
               <div class="md:col-span-3 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                 <span class="text-xs text-slate-500">
-                  ¿El propietario es nuevo? <button type="button" onclick="App.navigateTo('users')" class="text-teal-700 font-bold underline">Regístrelo rápidamente en el módulo de Usuarios</button>
+                  ¿El propietario es nuevo? <button type="button" onclick="App.navigateTo('users')" class="text-teal-700 font-bold underline">Regístrelo primero en la pestaña Propietarios</button>
                 </span>
-                <button type="submit" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition">
-                  Guardar Ficha y Georreferenciar en Ocaña
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition">
+                  Guardar Ficha de Mascota
                 </button>
               </div>
             </form>
           </div>
 
-          <!-- Buscador y Tabla del Directorio de Mascotas -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+          <!-- Buscador y Listado de Mascotas (Tarjetas en Móvil + Tabla en Escritorio) -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 class="font-bold text-slate-900 text-base">Padrón y Directorio de Mascotas</h3>
-                <p class="text-xs text-slate-500">Búsqueda instantánea por código sanitario, nombre de mascota, barrio, microchip o documento del propietario</p>
+                <h3 class="font-bold text-slate-900 text-base">Listado de Mascotas Registradas</h3>
+                <p class="text-xs text-slate-500">Busque por nombre, código sanitario, barrio o propietario</p>
               </div>
-              <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                <input id="directory-search-input" type="text" placeholder="Buscar mascota, código, barrio o propietario..."
-                  class="w-full sm:w-72 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                <input id="directory-search-input" type="text" placeholder="Buscar mascota, código o dueño..."
+                  class="w-full sm:w-64 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 <select id="directory-species-filter" class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-medium">
                   <option value="ALL">Todas las especies</option>
                   <option value="Canino">Caninos</option>
@@ -788,7 +721,11 @@
               </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <!-- Vista de Tarjetas Cómodas para Móvil -->
+            <div id="pets-directory-mobile-cards" class="grid grid-cols-1 gap-3 lg:hidden"></div>
+
+            <!-- Vista de Tabla Completa para Escritorio -->
+            <div class="hidden lg:block overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500 bg-slate-50">
@@ -808,25 +745,25 @@
         </section>
 
         <!-- ==================================================================
-             VISTA 3: CARNET SANITARIO DIGITAL OFICIAL E IMPRIMIBLE CON QR REAL
+             VISTA 3: CARNET SANITARIO DIGITAL OFICIAL E IMPRIMIBLE CON QR
              ================================================================== -->
-        <section id="view-carnet" class="view-section hidden space-y-6">
+        <section id="view-carnet" class="view-section hidden space-y-5">
           <!-- Barra de Herramientas del Carnet -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
-            <div class="flex items-center gap-3 flex-1 min-w-[260px]">
-              <label class="text-xs font-bold uppercase text-slate-600 shrink-0">Seleccionar Paciente:</label>
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
+            <div class="flex items-center gap-2.5 flex-1">
+              <label class="text-xs font-bold uppercase text-slate-600 shrink-0">Mascota:</label>
               <select id="carnet-pet-selector" onchange="App.onCarnetPetChange(this.value)" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-bold text-slate-800">
               </select>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button onclick="App.openPublicVerifierModal(App.selectedPetId)" class="px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition flex items-center gap-1.5">
-                <span>🔍 Simular Escaneo QR Público</span>
+              <button onclick="App.openPublicVerifierModal(App.selectedPetId)" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition flex items-center gap-1.5">
+                <span>🔍 Validar QR</span>
               </button>
-              <button onclick="App.copyCurrentCarnetVerifyLink()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
-                <span>🔗 Copiar Enlace QR</span>
+              <button onclick="App.copyCurrentCarnetVerifyLink()" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+                <span>🔗 Copiar Enlace</span>
               </button>
-              <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-2">
-                <span>🖨️ Imprimir / PDF Oficial</span>
+              <button onclick="window.print()" class="w-full sm:w-auto justify-center px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-2">
+                <span>🖨️ Imprimir / Guardar PDF</span>
               </button>
             </div>
           </div>
@@ -834,50 +771,49 @@
           <!-- Documento Oficial: Carnet Sanitario Digital -->
           <div id="printable-carnet" class="carnet-card rounded-3xl overflow-hidden">
             <!-- Cabecera del Carnet con QR Real Escaneable -->
-            <div class="carnet-header-banner p-6 md:p-7 text-white flex flex-wrap items-center justify-between gap-6">
-              <div class="flex items-center gap-4">
-                <div id="carnet-species-avatar" class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur border border-white/30 flex items-center justify-center text-3xl shadow-inner">
+            <div class="carnet-header-banner p-5 md:p-7 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              <div class="flex items-center gap-3.5">
+                <div id="carnet-species-avatar" class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 backdrop-blur border border-white/30 flex items-center justify-center text-3xl shadow-inner shrink-0">
                   🐾
                 </div>
                 <div>
-                  <div class="text-xs font-bold uppercase tracking-widest text-teal-200">
-                    República de Colombia • Municipio de Ocaña, Norte de Santander
+                  <div class="text-[11px] font-bold uppercase tracking-widest text-teal-200">
+                    Municipio de Ocaña, Norte de Santander
                   </div>
-                  <h2 class="text-xl md:text-2xl font-extrabold tracking-tight mt-0.5">
+                  <h2 class="text-lg md:text-2xl font-extrabold tracking-tight mt-0.5">
                     CARNET SANITARIO DIGITAL DE INMUNIZACIÓN
                   </h2>
                   <p class="text-xs text-teal-100/90 mt-0.5">
-                    Certificado Electrónico de Vacunación, Desparasitación y Trazabilidad Clínica • UFPSO
+                    Certificado de Vacunación, Desparasitación y Trazabilidad Clínica
                   </p>
                 </div>
               </div>
 
-              <!-- Bloque de Código Sanitario y QR Vectorial ISO/IEC 18004 -->
-              <div onclick="App.openPublicVerifierModal(App.selectedPetId)" class="cursor-pointer flex items-center gap-3.5 bg-white/95 text-slate-900 p-3 rounded-2xl shadow-lg hover:scale-[1.01] transition" title="Escanea con tu celular o haz clic para abrir el validador público">
-                <div class="text-right pr-1">
+              <!-- Bloque de Código Sanitario y QR Vectorial -->
+              <div onclick="App.openPublicVerifierModal(App.selectedPetId)" class="cursor-pointer flex items-center justify-between sm:justify-end gap-3.5 bg-white/95 text-slate-900 p-3 rounded-2xl shadow-lg hover:scale-[1.01] transition">
+                <div class="text-left sm:text-right pr-1">
                   <div class="text-[10px] font-bold uppercase text-slate-400">Registro Sanitario</div>
                   <div id="carnet-pet-id" class="font-mono font-extrabold text-base text-teal-700">OCA-PET-001</div>
                   <div id="carnet-global-status-badge" class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-1">
-                    ✔ Activo y Verificado
+                    ✔ Esquema al Día
                   </div>
-                  <div class="text-[9px] text-slate-400 mt-0.5">QR Escaneable en Web</div>
                 </div>
                 <div id="carnet-qr-box" class="shrink-0"></div>
               </div>
             </div>
 
             <!-- Cuerpo del Carnet -->
-            <div class="p-6 md:p-7 space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-5 md:p-7 space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <!-- Datos de la Mascota -->
                 <div class="bg-slate-50/80 rounded-2xl p-5 border border-slate-200/90 space-y-3">
                   <div class="text-xs font-bold uppercase tracking-wider text-teal-800 border-b border-slate-200 pb-2 flex items-center justify-between">
-                    <span>1. Identificación del Animal de Compañía</span>
+                    <span>1. Datos de la Mascota</span>
                     <span id="carnet-pet-neighborhood" class="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">Sector Ocaña</span>
                   </div>
                   <div class="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span class="text-slate-400 block">Nombre del Paciente:</span>
+                      <span class="text-slate-400 block">Nombre:</span>
                       <span id="carnet-pet-name" class="font-extrabold text-base text-slate-900">Max</span>
                     </div>
                     <div>
@@ -893,11 +829,11 @@
                       <span id="carnet-pet-age" class="font-semibold text-slate-800">2 años</span>
                     </div>
                     <div>
-                      <span class="text-slate-400 block">Peso y Pelaje:</span>
+                      <span class="text-slate-400 block">Peso y Color:</span>
                       <span id="carnet-pet-weight" class="font-semibold text-slate-800">28.5 kg</span>
                     </div>
                     <div>
-                      <span class="text-slate-400 block">Microchip / Identificador:</span>
+                      <span class="text-slate-400 block">Microchip / Placa:</span>
                       <span id="carnet-pet-chip" class="font-mono font-bold text-teal-700">COL-OCA</span>
                     </div>
                   </div>
@@ -906,8 +842,8 @@
                 <!-- Datos del Propietario -->
                 <div class="bg-slate-50/80 rounded-2xl p-5 border border-slate-200/90 space-y-3">
                   <div class="text-xs font-bold uppercase tracking-wider text-sky-800 border-b border-slate-200 pb-2 flex items-center justify-between">
-                    <span>2. Propietario o Tenedor Responsable</span>
-                    <span class="text-[11px] font-mono text-slate-500">Titular Registrado</span>
+                    <span>2. Propietario Responsable</span>
+                    <span class="text-[11px] font-mono text-slate-500">Titular</span>
                   </div>
                   <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="col-span-2">
@@ -915,15 +851,15 @@
                       <span id="carnet-owner-name" class="font-bold text-sm text-slate-900">Nombre del Propietario</span>
                     </div>
                     <div>
-                      <span class="text-slate-400 block">Documento de Identidad:</span>
+                      <span class="text-slate-400 block">Documento:</span>
                       <span id="carnet-owner-doc" class="font-mono font-bold text-slate-800">1091...</span>
                     </div>
                     <div>
-                      <span class="text-slate-400 block">Teléfono de Contacto:</span>
+                      <span class="text-slate-400 block">Teléfono / WhatsApp:</span>
                       <span id="carnet-owner-phone" class="font-semibold text-slate-800">315...</span>
                     </div>
                     <div class="col-span-2">
-                      <span class="text-slate-400 block">Dirección en el Municipio de Ocaña:</span>
+                      <span class="text-slate-400 block">Dirección en Ocaña:</span>
                       <span id="carnet-owner-address" class="font-semibold text-slate-800">Ocaña, Norte de Santander</span>
                     </div>
                   </div>
@@ -934,23 +870,23 @@
               <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                 <div class="bg-slate-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
                   <span class="text-xs font-bold uppercase tracking-wider">
-                    3. Registro Histórico de Vacunación y Control Antiparasitario
+                    3. Historial de Vacunación y Control Antiparasitario
                   </span>
                   <span class="text-[11px] text-teal-300 font-semibold">
-                    Certificación con Firma Digital Veterinaria (SHA-256)
+                    Respaldado con Firma Veterinaria
                   </span>
                 </div>
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse">
                     <thead>
                       <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase text-slate-600">
-                        <th class="px-3.5 py-3">Categoría</th>
-                        <th class="px-3.5 py-3">Biológico / Medicamento</th>
-                        <th class="px-3.5 py-3">Lote / Serie</th>
-                        <th class="px-3.5 py-3">Dosis y Vía</th>
+                        <th class="px-3.5 py-3">Tipo</th>
+                        <th class="px-3.5 py-3">Biológico / Producto</th>
+                        <th class="px-3.5 py-3">Lote</th>
+                        <th class="px-3.5 py-3">Dosis</th>
                         <th class="px-3.5 py-3">Aplicación</th>
                         <th class="px-3.5 py-3">Próximo Refuerzo</th>
-                        <th class="px-3.5 py-3">Médico Veterinario Responsable</th>
+                        <th class="px-3.5 py-3">Firma Médico Veterinario</th>
                       </tr>
                     </thead>
                     <tbody id="carnet-records-tbody"></tbody>
@@ -961,10 +897,10 @@
               <!-- Sello Oficial Inferior -->
               <div class="official-seal rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
                 <div>
-                  <strong>Validez Sanitaria y Verificación QR:</strong> Este carnet digital cuenta con trazabilidad clínica inalterable verificada por profesionales acreditados en el municipio de Ocaña, Norte de Santander.
+                  <strong>Validez Sanitaria:</strong> Este carnet digital cuenta con historial clínico verificable mediante código QR por clínicas veterinarias acreditadas en Ocaña.
                 </div>
                 <div class="font-mono text-[11px] text-teal-900 font-bold">
-                  ESQUEMAVET-OCAÑA • DOCUMENTO OFICIAL
+                  ESQUEMAVET OCAÑA • UFPSO
                 </div>
               </div>
             </div>
@@ -972,57 +908,57 @@
         </section>
 
         <!-- ==================================================================
-             VISTA 4: MÓDULO CLÍNICO DE APLICACIÓN DE BIOLÓGICOS
+             VISTA 4: MÓDULO CLÍNICO DE APLICACIÓN DE BIOLÓGICOS (VETERINARIO)
              ================================================================== -->
         <section id="view-vaccinate" class="view-section hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Formulario de Registro de Biológico -->
-            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
               <div class="border-b border-slate-100 pb-3.5">
                 <span class="text-xs font-bold uppercase text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">
-                  Acto Médico Veterinario
+                  Módulo Clínico Veterinario
                 </span>
                 <h2 class="text-lg font-bold text-slate-900 mt-1.5">
-                  Certificar Aplicación de Vacuna o Antiparasitario
+                  Registrar Vacuna o Desparasitación
                 </h2>
                 <p class="text-xs text-slate-500">
-                  Seleccione un protocolo rápido o consigne los datos técnicos del biológico suministrado.
+                  Elija un protocolo rápido o ingrese los datos del biológico aplicado al paciente.
                 </p>
               </div>
 
-              <!-- NUEVO: Asistente Clínico de Protocolos Rápidos -->
+              <!-- Asistente Clínico de Protocolos Rápidos -->
               <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2">
-                <div class="text-[11px] font-bold uppercase text-slate-500 flex items-center justify-between">
-                  <span>⚡ Autocompletar Protocolo Estándar (Calcula dosis por peso y fecha de refuerzo)</span>
+                <div class="text-[11px] font-bold uppercase text-slate-500">
+                  ⚡ Autocompletar Protocolo Frecuente (Calcula dosis por peso y próximo refuerzo)
                 </div>
                 <div id="vac-quick-presets" class="flex flex-wrap gap-1.5"></div>
               </div>
 
               <form id="form-register-vaccine" class="space-y-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">1. Paciente (Mascota) *</label>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">1. Seleccionar Paciente (Mascota) *</label>
                   <select id="vac-pet-id" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
                   </select>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Aplicación *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Categoría *</label>
                     <select id="vac-category" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
                       <option value="VACUNA">Vacunación (Inmunización)</option>
                       <option value="DESPARASITACION">Desparasitación Preventiva</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Número de Lote / Serie *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Código de Lote *</label>
                     <input id="vac-code" type="text" required placeholder="Ej. LOT-RB-9981A" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-mono uppercase" />
                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Biológico / Producto *</label>
-                    <input id="vac-name" type="text" required placeholder="Ej. Antirrábica Canina / Polivalente" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nombre de la Vacuna / Producto *</label>
+                    <input id="vac-name" type="text" required placeholder="Ej. Antirrábica / Polivalente" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
                   </div>
                   <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Volumen de Dosis y Vía *</label>
@@ -1036,20 +972,20 @@
                     <input id="vac-date" type="date" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-teal-800 mb-1">Fecha de Próximo Refuerzo *</label>
+                    <label class="block text-xs font-bold text-teal-800 mb-1">Fecha del Próximo Refuerzo *</label>
                     <input id="vac-booster" type="date" required class="w-full px-3.5 py-2 rounded-xl border-2 border-teal-500 bg-teal-50/30 text-sm font-semibold" />
                   </div>
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Observaciones y Anamnesis</label>
-                  <textarea id="vac-observations" rows="2" placeholder="Paciente clínicamente sano, constantes fisiológicas en rango normal..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Observaciones Clínicas</label>
+                  <textarea id="vac-observations" rows="2" placeholder="Paciente clínicamente sano, sin reacciones adversas..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
                 </div>
 
                 <!-- Firma Digital del Profesional -->
                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                   <div>
-                    <div class="text-[11px] font-bold uppercase text-slate-400">Firma Electrónica del Médico Veterinario</div>
+                    <div class="text-[11px] font-bold uppercase text-slate-400">Firma Responsable del Médico Veterinario</div>
                     <div id="vac-vet-signer-name" class="signature-script mt-0.5">Dr. Veterinario</div>
                     <div id="vac-vet-signer-license" class="text-xs text-teal-700 font-semibold">Licencia Profesional</div>
                   </div>
@@ -1059,20 +995,20 @@
                 </div>
 
                 <button type="submit" class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition">
-                  Registrar y Firmar Aplicación en el Carnet Digital
+                  Confirmar y Firmar en el Carnet Digital
                 </button>
               </form>
             </div>
 
             <!-- Columna Derecha: Antecedentes Clínicos del Paciente -->
-            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-3">
+            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-3">
               <div class="border-b border-slate-100 pb-3.5">
-                <span class="text-xs font-bold uppercase text-teal-700">Verificación Clínica</span>
+                <span class="text-xs font-bold uppercase text-teal-700">Revisión Previa</span>
                 <h3 class="text-base font-bold text-slate-900 mt-0.5">
-                  Antecedentes Inmunológicos del Paciente
+                  Antecedentes Sanitarios del Paciente
                 </h3>
                 <p class="text-xs text-slate-500">
-                  Revise las aplicaciones previas del ejemplar antes de administrar un nuevo biológico.
+                  Verifique las vacunas y desparasitaciones previas antes de aplicar una nueva dosis.
                 </p>
               </div>
               <div id="vet-precheck-history"></div>
@@ -1081,16 +1017,16 @@
         </section>
 
         <!-- ==================================================================
-             VISTA 5: MI CUENTA, CREDENCIALES Y REGISTRO DE PROPIETARIOS
+             VISTA 5: MI PERFIL, CONTRASEÑA Y GESTIÓN DE PROPIETARIOS
              ================================================================== -->
         <section id="view-users" class="view-section hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Datos Personales -->
-            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
               <div class="border-b border-slate-100 pb-3">
-                <span class="text-xs font-bold uppercase text-teal-700">Configuración de Cuenta</span>
-                <h3 class="text-base font-bold text-slate-900">Información Personal y de Contacto</h3>
-                <p class="text-xs text-slate-500">Mantenga actualizados sus datos para la recepción de notificaciones preventivas.</p>
+                <span class="text-xs font-bold uppercase text-teal-700">Mi Perfil</span>
+                <h3 class="text-base font-bold text-slate-900">Datos Personales y de Contacto</h3>
+                <p class="text-xs text-slate-500">Actualice su teléfono o dirección cuando lo necesite.</p>
               </div>
 
               <form id="form-update-profile" class="space-y-3.5">
@@ -1098,9 +1034,9 @@
                   <label class="block text-xs font-bold text-slate-700 mb-1">Nombre Completo</label>
                   <input id="prof-name" type="text" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Documento / NIT</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Documento / Cédula</label>
                     <input id="prof-document" type="text" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
                   </div>
                   <div>
@@ -1124,53 +1060,61 @@
                 </div>
 
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow transition">
-                  Guardar Cambios de Perfil
+                  Guardar Mis Datos
                 </button>
               </form>
             </div>
 
-            <!-- Seguridad y Cambio de Contraseña Comprobable -->
-            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
-              <div class="border-b border-slate-100 pb-3">
-                <span class="text-xs font-bold uppercase text-sky-700">Seguridad de Acceso</span>
-                <h3 class="text-base font-bold text-slate-900">Credenciales y Cambio de Contraseña</h3>
-                <p class="text-xs text-slate-500">Verifique su contraseña actual y actualice su clave cifrada cuando lo requiera.</p>
-              </div>
-
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                <div class="font-bold text-slate-700">Firma Criptográfica de su Credencial Almacenada:</div>
-                <div id="sec-stored-hash-preview" class="font-mono text-[11px] text-teal-700 break-all">sha256v2$...</div>
-              </div>
-
-              <form id="form-change-password" class="space-y-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña Actual *</label>
-                  <input id="sec-current-pass" type="password" required placeholder="Ingrese su contraseña vigente" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+            <!-- Seguridad y Cambio de Contraseña -->
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4 flex flex-col justify-between">
+              <div class="space-y-4">
+                <div class="border-b border-slate-100 pb-3">
+                  <span class="text-xs font-bold uppercase text-sky-700">Seguridad de la Cuenta</span>
+                  <h3 class="text-base font-bold text-slate-900">Cambiar Mi Contraseña</h3>
+                  <p class="text-xs text-slate-500">Para actualizar su clave, ingrese primero su contraseña actual.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nueva Contraseña *</label>
-                    <input id="sec-new-pass" type="password" required placeholder="Mínimo 6 caracteres" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Confirmar Nueva Contraseña *</label>
-                    <input id="sec-confirm-pass" type="password" required placeholder="Repita la nueva clave" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
-                  </div>
+
+                <!-- Estado amigable para todos; Hash técnico visible SOLO para Administrador -->
+                <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs flex items-center justify-between">
+                  <span class="font-bold text-emerald-900">🔒 Estado de Seguridad de la Cuenta:</span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">Protegida y Verificada</span>
                 </div>
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow transition">
-                  Comprobar y Actualizar Contraseña
-                </button>
-              </form>
+
+                <div id="admin-only-hash-box" class="hidden p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                  <div class="font-bold text-slate-700">Hash Criptográfico Almacenado (Solo Admin):</div>
+                  <div id="sec-stored-hash-preview" class="font-mono text-[11px] text-teal-700 break-all">sha256v2$...</div>
+                </div>
+
+                <form id="form-change-password" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña Actual *</label>
+                    <input id="sec-current-pass" type="password" required placeholder="Ingrese su contraseña actual" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 mb-1">Nueva Contraseña *</label>
+                      <input id="sec-new-pass" type="password" required placeholder="Mínimo 6 caracteres" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 mb-1">Confirmar Contraseña *</label>
+                      <input id="sec-confirm-pass" type="password" required placeholder="Repita la nueva clave" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                    </div>
+                  </div>
+                  <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow transition">
+                    Actualizar Contraseña
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
 
-          <!-- Panel Exclusivo Veterinario: Registro Presencial de Propietarios -->
-          <div id="vet-create-owner-panel" class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+          <!-- Panel Veterinario / Admin: Registro Presencial de Propietarios -->
+          <div id="vet-create-owner-panel" class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
             <div class="border-b border-slate-100 pb-3">
-              <span class="text-xs font-bold uppercase text-amber-700">Módulo de Consulta Presencial</span>
-              <h3 class="text-base font-bold text-slate-900">Registrar Nuevo Propietario desde Consultorio</h3>
+              <span class="text-xs font-bold uppercase text-amber-700">Atención en Consultorio</span>
+              <h3 class="text-base font-bold text-slate-900">Registrar Nuevo Propietario de Mascota</h3>
               <p class="text-xs text-slate-500">
-                Cree la cuenta del propietario durante la atención clínica presencial y asígnele su clave de acceso para consultar el carnet digital.
+                Cree la cuenta del propietario durante la consulta para poder vincularle sus mascotas y su carnet digital.
               </p>
             </div>
 
@@ -1180,7 +1124,7 @@
                 <input id="vet-owner-name" type="text" required placeholder="Ej. Camilo Andrés Durán" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Documento de Identidad (C.C.) *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Cédula de Ciudadanía *</label>
                 <input id="vet-owner-doc" type="text" required placeholder="Ej. 1091690123" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
               <div>
@@ -1200,24 +1144,24 @@
                 <input id="vet-owner-pass" type="text" placeholder="Por defecto será su N° de Cédula" class="w-full px-3.5 py-2 rounded-xl border border-teal-400 bg-teal-50/30 text-sm" />
               </div>
               <div class="md:col-span-3 flex justify-end pt-2 border-t border-slate-100">
-                <button type="submit" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow transition">
-                  Habilitar Cuenta de Propietario
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow transition">
+                  Crear Cuenta de Propietario
                 </button>
               </div>
             </form>
           </div>
 
-          <!-- Directorio de Usuarios y Credenciales Verificadas -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-900 text-base">Directorio de Usuarios Registrados y Mascotas Vinculadas</h3>
+          <!-- Directorio de Propietarios (Visible para Veterinario y Administrador; oculto para Propietario) -->
+          <div id="users-directory-card" class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
+            <h3 id="users-directory-title" class="font-bold text-slate-900 text-base">Propietarios Registrados y Mascotas Asociadas</h3>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase text-slate-500">
                     <th class="px-4 py-3">Nombre y Documento</th>
-                    <th class="px-4 py-3">Tipo de Perfil</th>
+                    <th class="px-4 py-3">Perfil</th>
                     <th class="px-4 py-3">Contacto y Ubicación</th>
-                    <th class="px-4 py-3">Estado de Credencial</th>
+                    <th class="px-4 py-3">Estado</th>
                     <th class="px-4 py-3">Mascotas Asociadas</th>
                   </tr>
                 </thead>
@@ -1231,16 +1175,16 @@
              VISTA 6: VIGILANCIA EPIDEMIOLÓGICA, MAPA DE OCAÑA Y CENSO
              ================================================================== -->
         <section id="view-epidemiology" class="view-section hidden space-y-6">
-          <div class="carnet-header-banner rounded-3xl p-6 md:p-7 text-white shadow-lg flex flex-wrap items-center justify-between gap-4">
+          <div class="carnet-header-banner rounded-3xl p-5 md:p-7 text-white shadow-lg flex flex-wrap items-center justify-between gap-4">
             <div>
               <span class="text-xs font-bold uppercase tracking-wider text-teal-200">
-                Salud Pública Municipal • Ocaña, Norte de Santander (ODS 3)
+                Salud Pública Municipal • Ocaña, Norte de Santander
               </span>
               <h2 class="text-xl md:text-2xl font-extrabold mt-1">
-                Vigilancia Epidemiológica, Mapa Georreferenciado y Censo Municipal
+                Vigilancia Epidemiológica, Mapa Sanitario y Censo Municipal
               </h2>
               <p class="text-xs md:text-sm text-teal-100 mt-1 max-w-3xl">
-                Monitoreo espacial interactivo (OpenStreetMap API) de clínicas veterinarias y mascotas censadas por barrios en Ocaña, junto con la matriz de trazabilidad biológica.
+                Ubicación por barrios de mascotas censadas, clínicas veterinarias acreditadas y trazabilidad de biológicos aplicados.
               </p>
             </div>
             <div class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl p-3.5 text-right">
@@ -1267,18 +1211,18 @@
               <div class="text-[11px] text-slate-500">Inmunizaciones certificadas</div>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
-              <div class="text-xs text-slate-500 font-semibold">Controles Antiparasitarios</div>
+              <div class="text-xs text-slate-500 font-semibold">Desparasitaciones</div>
               <div id="epi-count-desp" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
               <div class="text-[11px] text-slate-500">Dosis preventivas</div>
             </div>
           </div>
 
-          <!-- NUEVO: Mapa Georreferenciado Interactivo de Ocaña (OpenStreetMap + Leaflet API) -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+          <!-- Mapa Georreferenciado Interactivo de Ocaña -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span class="text-[11px] font-bold uppercase text-teal-700">Cartografía Interactiva Conectada a OpenStreetMap API</span>
-                <h3 class="font-bold text-slate-900 text-base">Mapa Epidemiológico por Sectores y Clínicas de Ocaña (8.2377° N, 73.3560° O)</h3>
+                <span class="text-[11px] font-bold uppercase text-teal-700">Cartografía Municipal</span>
+                <h3 class="font-bold text-slate-900 text-base">Mapa de Cobertura por Barrios y Clínicas de Ocaña</h3>
               </div>
               <div class="flex flex-wrap items-center gap-2 text-xs">
                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-semibold">🏥 Clínicas / UFPSO</span>
@@ -1291,7 +1235,7 @@
           </div>
 
           <!-- Gráfica de Cobertura Municipal -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-3">
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-3">
             <h3 class="font-bold text-slate-900 text-base">Balance Gráfico de Censo e Inmunización en Ocaña</h3>
             <div class="h-60 relative">
               <canvas id="chart-epi-overview"></canvas>
@@ -1299,7 +1243,7 @@
           </div>
 
           <!-- Tabla de Trazabilidad de Biológicos -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h3 class="font-bold text-slate-900 text-base">Matriz de Trazabilidad de Biológicos Administrados</h3>
@@ -1309,10 +1253,7 @@
               </div>
               <div class="flex flex-wrap gap-2">
                 <button onclick="App.exportEpidemiologyCSV()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">
-                  📊 Exportar Matriz Excel (.CSV)
-                </button>
-                <button onclick="App.exportDatabaseBackup()" class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition">
-                  📥 Exportar Reporte (.JSON)
+                  📊 Exportar Excel (.CSV)
                 </button>
               </div>
             </div>
@@ -1336,32 +1277,116 @@
         </section>
 
         <!-- ==================================================================
-             VISTA 7: API PÚBLICA REST, GOOGLE CLOUD Y COPIAS DE SEGURIDAD
+             VISTA 7 (EXCLUSIVA ADMINISTRADOR): PERMISOS API, TOKENS, RECOPILACIONES Y CLOUD
              ================================================================== -->
         <section id="view-cloud" class="view-section hidden space-y-6">
-          <!-- NUEVO: Consola Interactiva de API Pública REST (OpenAPI Explorer) -->
+          <!-- Banner de Seguridad Exclusivo Administrador -->
+          <div class="bg-gradient-to-r from-amber-950 via-slate-900 to-teal-950 text-white rounded-3xl p-6 shadow-xl border border-amber-500/30 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                🔒 MÓDULO EXCLUSIVO ADMINISTRADOR DEL SISTEMA
+              </span>
+              <h2 class="text-xl font-extrabold mt-1">
+                Gestión de Permisos de API, Tokens de Acceso, Recopilaciones y Base de Datos Cloud
+              </h2>
+              <p class="text-xs text-slate-300 mt-1">
+                Este panel se encuentra aislado de las vistas de Médicos Veterinarios y Propietarios para proteger las credenciales de infraestructura y las colecciones de datos.
+              </p>
+            </div>
+          </div>
+
+          <!-- 1. Gestión de Tokens de API y Control de Permisos -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-xs font-bold uppercase text-amber-700">Autenticación y Tokens de API</span>
+                <h3 class="text-base font-bold text-slate-900">Token Maestro Bearer y Permisos de Endpoints</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Token Activo
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              <div class="md:col-span-8">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Bearer Token de Acceso a la API (Privado Administrador)</label>
+                <div class="flex gap-2">
+                  <input id="admin-master-api-token" type="text" readonly value="tok_live_ocana_9f8e7d6c5b4a3210_ufpso"
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-xs text-teal-800 font-bold" />
+                  <button onclick="App.copyAdminApiToken()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shrink-0">
+                    Copiar Token
+                  </button>
+                  <button onclick="App.regenerateAdminApiToken()" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold shrink-0">
+                    Rotar Token
+                  </button>
+                </div>
+              </div>
+              <div class="md:col-span-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                <div class="font-bold text-slate-800">Permisos del Token:</div>
+                <div class="text-slate-600">✔ Lectura/Escritura en Recopilaciones Cloud</div>
+                <div class="text-slate-600">✔ Validación Criptográfica SHA-256</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Explorador de Recopilaciones (Colecciones de la Base de Datos) -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <span class="text-xs font-bold uppercase text-teal-700">Base de Datos Documental</span>
+              <h3 class="text-base font-bold text-slate-900">Recopilaciones (Colecciones) del Sistema</h3>
+              <p class="text-xs text-slate-500">Seleccione una recopilación para inspeccionar su estructura JSON en tiempo real.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <button onclick="App.renderAdminCollectionInspector('usuarios_sistema')" class="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/30 text-left transition">
+                <div class="text-[11px] font-mono font-bold text-teal-700">usuarios_sistema</div>
+                <div id="col-count-users" class="text-lg font-extrabold text-slate-900 mt-1">0 docs</div>
+                <div class="text-[11px] text-slate-500">Cuentas, roles y hashes</div>
+              </button>
+
+              <button onclick="App.renderAdminCollectionInspector('mascotas_censo')" class="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/30 text-left transition">
+                <div class="text-[11px] font-mono font-bold text-sky-700">mascotas_censo</div>
+                <div id="col-count-pets" class="text-lg font-extrabold text-slate-900 mt-1">0 docs</div>
+                <div class="text-[11px] text-slate-500">Fichas y coordenadas GPS</div>
+              </button>
+
+              <button onclick="App.renderAdminCollectionInspector('historial_biologicos')" class="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/30 text-left transition">
+                <div class="text-[11px] font-mono font-bold text-emerald-700">historial_biologicos</div>
+                <div id="col-count-vacs" class="text-lg font-extrabold text-slate-900 mt-1">0 docs</div>
+                <div class="text-[11px] text-slate-500">Vacunas y sellos digitales</div>
+              </button>
+
+              <button onclick="App.renderAdminCollectionInspector('auditoria_accesos')" class="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/30 text-left transition">
+                <div class="text-[11px] font-mono font-bold text-amber-700">auditoria_accesos</div>
+                <div id="col-count-logs" class="text-lg font-extrabold text-slate-900 mt-1">0 eventos</div>
+                <div class="text-[11px] text-slate-500">Logs de sincronización</div>
+              </button>
+            </div>
+
+            <div class="rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+              <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-300 font-mono">
+                <span id="admin-collection-title">Recopilación: usuarios_sistema</span>
+                <span class="text-emerald-400">JSON Document Store</span>
+              </div>
+              <pre id="admin-collection-json-preview" class="p-4 text-xs font-mono text-amber-300 overflow-x-auto max-h-60 leading-relaxed"></pre>
+            </div>
+          </div>
+
+          <!-- 3. Consola Interactiva de Endpoints OpenAPI REST -->
           <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
               <div>
                 <div class="flex items-center gap-2">
                   <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                    OPENAPI REST v1 • EN VIVO
+                    OPENAPI REST v1 • CONSOLA ADMIN
                   </span>
-                  <span class="text-xs text-slate-400 font-mono">CORS Enabled • JSON UTF-8</span>
                 </div>
-                <h2 class="text-lg md:text-xl font-extrabold mt-1">
-                  Consola Interactiva de API Pública Web — EsquemaVet Ocaña
-                </h2>
-                <p class="text-xs text-slate-300">
-                  Pruebe en vivo los endpoints públicos de consulta epidemiológica, verificación sanitaria QR y telemetría biometeorológica de Ocaña.
-                </p>
+                <h3 class="text-lg font-extrabold mt-1">
+                  Pruebas de Endpoints REST y Sincronización
+                </h3>
               </div>
-              <button onclick="App.openFairPresentationModal()" class="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-xs transition">
-                📱 Ver QR y URL Pública Web
-              </button>
             </div>
 
-            <!-- Botones de Endpoints REST -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               <button onclick="App.testLiveAPIEndpoint('CENSO')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition">
                 <div class="flex items-center justify-between">
@@ -1369,7 +1394,7 @@
                   <span class="text-[10px] text-slate-400">200 OK</span>
                 </div>
                 <div class="font-mono text-xs font-bold text-white mt-1.5">/api/v1/ocana/censo</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Consolidado municipal y cobertura</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Consolidado municipal</div>
               </button>
 
               <button onclick="App.testLiveAPIEndpoint('VERIFY')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition">
@@ -1378,7 +1403,7 @@
                   <span class="text-[10px] text-slate-400">SHA-256</span>
                 </div>
                 <div class="font-mono text-xs font-bold text-white mt-1.5">/api/v1/ocana/verify/OCA-PET-001</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Certificado sanitario y firma QR</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Certificado y firma QR</div>
               </button>
 
               <button onclick="App.testLiveAPIEndpoint('WEATHER')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition">
@@ -1387,7 +1412,7 @@
                   <span class="text-[10px] text-slate-400">Open-Meteo</span>
                 </div>
                 <div class="font-mono text-xs font-bold text-white mt-1.5">/api/v1/ocana/biometeo</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Clima real Ocaña y riesgo vectorial</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Telemetría clima Ocaña</div>
               </button>
 
               <button onclick="App.testLiveAPIEndpoint('CLOUD_SYNC')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition">
@@ -1396,11 +1421,10 @@
                   <span class="text-[10px] text-slate-400">Firestore</span>
                 </div>
                 <div class="font-mono text-xs font-bold text-white mt-1.5">/api/v1/cloud/sync-all</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Sincronizar colecciones con Cloud</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Sincronizar colecciones</div>
               </button>
             </div>
 
-            <!-- Visor de Respuesta JSON en Tiempo Real -->
             <div class="rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
               <div class="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div class="flex items-center gap-2 font-mono">
@@ -1408,25 +1432,22 @@
                   <span id="api-console-url" class="text-slate-300">/api/v1/ocana/censo</span>
                 </div>
                 <div class="flex items-center gap-3">
-                  <span id="api-console-status" class="text-emerald-400 font-mono text-[11px] font-bold">HTTP 200 OK • 8 ms</span>
+                  <span id="api-console-status" class="text-emerald-400 font-mono text-[11px] font-bold">HTTP 200 OK</span>
                   <button onclick="App.copyAPIConsoleOutput()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold">
                     Copiar JSON
                   </button>
                 </div>
               </div>
-              <pre id="api-console-output" class="p-4 text-xs font-mono text-teal-300 overflow-x-auto max-h-72 leading-relaxed"></pre>
+              <pre id="api-console-output" class="p-4 text-xs font-mono text-teal-300 overflow-x-auto max-h-64 leading-relaxed"></pre>
             </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Configuración de Conexión Google Cloud Firestore y Webhook REST -->
-            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4">
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
               <div class="border-b border-slate-100 pb-3">
-                <span class="text-xs font-bold uppercase text-sky-700">Infraestructura Cloud & Webhooks</span>
-                <h3 class="text-base font-bold text-slate-900">Conexión con Google Cloud Firestore / API Externa</h3>
-                <p class="text-xs text-slate-500">
-                  Configure las credenciales de su proyecto en Google Cloud / Firebase o un Webhook REST para replicar cada registro en tiempo real.
-                </p>
+                <span class="text-xs font-bold uppercase text-sky-700">Credenciales Google Cloud</span>
+                <h3 class="text-base font-bold text-slate-900">Conexión con Cloud Firestore / Webhook</h3>
               </div>
 
               <form id="form-cloud-config" class="space-y-3.5">
@@ -1452,59 +1473,56 @@
                 </div>
                 <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 pt-1 cursor-pointer">
                   <input id="gcp-enabled" type="checkbox" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
-                  <span>Activar envío automático de documentos a Cloud Firestore / API REST</span>
+                  <span>Activar sincronización automática hacia Cloud Firestore</span>
                 </label>
 
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow transition">
-                  Guardar Configuración Cloud y API
+                  Guardar Credenciales Cloud
                 </button>
               </form>
             </div>
 
             <!-- Gestión de Respaldos y Recuperación -->
-            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-4 flex flex-col justify-between">
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4 flex flex-col justify-between">
               <div class="space-y-3">
                 <div class="border-b border-slate-100 pb-3">
-                  <span class="text-xs font-bold uppercase text-teal-700">Protección de Información</span>
-                  <h3 class="text-base font-bold text-slate-900">Respaldo y Restauración de Base de Datos</h3>
-                  <p class="text-xs text-slate-500">
-                    Descargue copias completas de seguridad en formato JSON estandarizado o restaure el sistema desde un respaldo previo.
-                  </p>
+                  <span class="text-xs font-bold uppercase text-teal-700">Respaldo del Sistema</span>
+                  <h3 class="text-base font-bold text-slate-900">Exportar y Restaurar Base de Datos (.JSON)</h3>
                 </div>
 
                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                  <div class="text-xs font-bold text-slate-800">1. Exportar Copia de Seguridad Actual</div>
-                  <p class="text-xs text-slate-500">Incluye cuentas de usuarios, credenciales cifradas, fichas de mascotas georreferenciadas e historial de biológicos firmados.</p>
+                  <div class="text-xs font-bold text-slate-800">1. Exportar Copia de Seguridad Completa</div>
+                  <p class="text-xs text-slate-500">Descarga todas las recopilaciones de usuarios, mascotas y biológicos en un archivo JSON.</p>
                   <button onclick="App.exportDatabaseBackup()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow transition">
-                    💾 Descargar Respaldo Completo (.JSON)
+                    💾 Descargar Respaldo (.JSON)
                   </button>
                 </div>
 
                 <div class="p-4 rounded-2xl bg-teal-50/50 border border-teal-200 space-y-2.5">
-                  <div class="text-xs font-bold text-teal-950">2. Restaurar desde Archivo de Respaldo (.JSON)</div>
+                  <div class="text-xs font-bold text-teal-950">2. Restaurar desde Archivo (.JSON)</div>
                   <input id="backup-file-input" type="file" accept=".json" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-teal-600 file:text-white hover:file:bg-teal-700" />
                 </div>
               </div>
 
               <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-xs text-slate-400">¿Desea volver a los datos iniciales de fábrica?</span>
+                <span class="text-xs text-slate-400">Restaurar datos semilla de demostración:</span>
                 <button onclick="App.resetDemoData()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
-                  Restablecer Datos Iniciales
+                  Restablecer Semilla
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Bitácora de Sincronización y Auditoría -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-3">
-            <h3 class="font-bold text-slate-900 text-base">Bitácora de Transacciones y Sincronización Cloud / API</h3>
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 text-base">Bitácora de Transacciones y Auditoría de Recopilaciones</h3>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase text-slate-500">
                     <th class="px-3 py-2.5">Fecha y Hora</th>
                     <th class="px-3 py-2.5">Operación</th>
-                    <th class="px-3 py-2.5">Colección Cloud</th>
+                    <th class="px-3 py-2.5">Recopilación</th>
                     <th class="px-3 py-2.5">Detalle de Transacción</th>
                   </tr>
                 </thead>
