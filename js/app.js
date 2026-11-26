@@ -42,6 +42,68 @@ const App = {
     this.refreshWeatherTelemetry(false);
     this.checkUrlDeepLinks();
     this.refreshIcons();
+
+    if (window.FirebaseService) {
+      this.onFirebaseServiceReady();
+    }
+  },
+
+  /**
+   * Inicializa la conexión en tiempo real con Firebase Firestore (o fallback local)
+   */
+  async onFirebaseServiceReady() {
+    if (!window.FirebaseService) return;
+    await window.FirebaseService.init((event) => this.handleFirestoreUpdate(event));
+    this.renderHeaderAndSidebar();
+    if (this.currentUser && this.currentUser.role === 'ADMINISTRADOR') {
+      this.renderCloudStatusView();
+    }
+  },
+
+  handleFirestoreUpdate(event) {
+    if (!event) return;
+
+    if (event.type === 'COLLECTION_SYNC') {
+      if (event.field === 'auditLogs') {
+        if (event.docs.length > 0) {
+          const sortedLogs = [...event.docs].sort((a, b) =>
+            String(b.timestamp || '').localeCompare(String(a.timestamp || ''))
+          );
+          localStorage.setItem('ESQUEMAVET_GCP_SYNC_LOG_V2', JSON.stringify(sortedLogs.slice(0, 50)));
+        }
+      } else if (['users', 'pets', 'vaccinations'].includes(event.field)) {
+        // Si la colección remota en Firestore tiene documentos, sincronizar en tiempo real
+        if (event.docs.length > 0) {
+          this.db[event.field] = event.docs;
+          window.DataStore.saveData(this.db);
+
+          // Mantener sincronizada la referencia del usuario actual si cambió
+          if (event.field === 'users' && this.currentUser) {
+            const refreshedUser = this.db.users.find(u => u.id === this.currentUser.id);
+            if (refreshedUser) this.currentUser = refreshedUser;
+          }
+        }
+      }
+
+      if (this.currentUser) {
+        this.renderHeaderAndSidebar();
+        this.renderAllActiveViews();
+      }
+
+      // Si el modal de verificación pública por QR está abierto, refrescarlo en tiempo real
+      const verifyModal = document.getElementById('public-verify-modal');
+      const verifyInput = document.getElementById('modal-verify-input');
+      if (verifyModal && !verifyModal.classList.contains('hidden') && verifyInput && verifyInput.value.trim()) {
+        this.renderPublicVerificationResult(verifyInput.value.trim());
+      }
+    } else if (event.type === 'STATUS_ONLY' || event.type === 'ERROR') {
+      if (this.currentUser) {
+        this.renderHeaderAndSidebar();
+        if (this.currentUser.role === 'ADMINISTRADOR') {
+          this.renderCloudStatusView();
+        }
+      }
+    }
   },
 
   refreshIcons() {
@@ -403,7 +465,7 @@ const App = {
     if (!modal) return;
     modal.classList.remove('hidden');
 
-    const publicUrl = 'https://antigravity.luch.dev/site/b8fc95dc-5aca-4e11-b80c-2fa0d8e8f0da/12e5c3d80acf70c398f608ea/';
+    const publicUrl = window.PublicAPIConnector.getPublicSiteBaseUrl();
     const qrBox = document.getElementById('fair-public-qr-box');
     if (qrBox) {
       qrBox.innerHTML = window.DataStore.generateQRCodeSVG(publicUrl, 138);
@@ -420,7 +482,7 @@ const App = {
   },
 
   copyPublicSiteUrl() {
-    const url = 'https://antigravity.luch.dev/site/b8fc95dc-5aca-4e11-b80c-2fa0d8e8f0da/12e5c3d80acf70c398f608ea/';
+    const url = window.PublicAPIConnector.getPublicSiteBaseUrl();
     this.copyTextToClipboard(url, 'Enlace público web copiado al portapapeles.');
   },
 
@@ -985,7 +1047,7 @@ const App = {
 
   /**
    * Define los ítems de menú permitidos para cada perfil con estructura 100% pareja.
-   * Las funciones de API, Recopilaciones, Tokens y Cloud quedan EXCLUSIVAS para ADMINISTRADOR.
+   * Las funciones de API, Colecciones, Tokens y Cloud quedan EXCLUSIVAS para ADMINISTRADOR.
    */
   getMenuItemsForRole(role) {
     if (role === 'PROPIETARIO') {
@@ -1015,7 +1077,7 @@ const App = {
         { view: 'users', label: 'Mi Perfil', mobileLabel: 'Mi Perfil', icon: 'user-check' }
       ];
     }
-    // ADMINISTRADOR: Acceso exclusivo a API, Tokens, Recopilaciones y Configuración Cloud
+    // ADMINISTRADOR: Acceso exclusivo a API, Tokens, Colecciones y Configuración Cloud
     return [
       { view: 'dashboard', label: 'Panel General', mobileLabel: 'Panel', icon: 'layout-dashboard' },
       { view: 'cloud', label: 'API, Tokens y Cloud', mobileLabel: 'API & BD', icon: 'cpu' },
@@ -1092,7 +1154,7 @@ const App = {
     const allowedViews = this.getMenuItemsForRole(this.currentUser.role).map(i => i.view);
     if (!allowedViews.includes(viewName)) {
       if (viewName === 'cloud') {
-        this.showToast('Acceso restringido: El módulo de API, Tokens y Recopilaciones Cloud es exclusivo del perfil Administrador.', 'error');
+        this.showToast('Acceso restringido: El módulo de API, Tokens y Colecciones Cloud es exclusivo del perfil Administrador.', 'error');
       } else {
         this.showToast('Su perfil actual no tiene permisos para acceder a esa sección.', 'error');
       }
@@ -1188,13 +1250,13 @@ const App = {
     const cloudBadge = document.getElementById('header-cloud-badge');
     if (cloudBadge) {
       if (this.currentUser.role === 'ADMINISTRADOR') {
-        const cloudCfg = window.GoogleCloudConfig.getConfig();
+        const fsConnected = window.FirebaseService && window.FirebaseService.isConnected();
         cloudBadge.classList.remove('hidden');
-        if (cloudCfg.enabled && (cloudCfg.apiKey || cloudCfg.publicWebhookUrl)) {
-          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Admin: Cloud & API Activo</span>`;
+        if (fsConnected) {
+          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Firestore Tiempo Real</span>`;
           cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-pointer';
         } else {
-          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Admin: Consola API & Tokens</span>`;
+          cloudBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Modo Híbrido (Local)</span>`;
           cloudBadge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 cursor-pointer';
         }
       } else {
@@ -1364,7 +1426,7 @@ const App = {
             </span>
             <h2 class="text-xl md:text-2xl font-extrabold text-white">${this.currentUser.name}</h2>
             <p class="text-sm text-teal-100/95 mt-1 max-w-2xl">
-              Administre de forma exclusiva las llaves de la API, tokens de acceso, recopilaciones de Cloud Firestore, respaldos JSON y permisos de usuarios.
+              Administre de forma exclusiva las llaves de la API, tokens de acceso, colecciones de Cloud Firestore, respaldos JSON y permisos de usuarios.
             </p>
           </div>
           <div class="flex flex-wrap gap-2.5 shrink-0">
@@ -1387,8 +1449,8 @@ const App = {
           <button onclick="App.navigateTo('cloud')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
             <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-extrabold flex items-center justify-center shrink-0">🗄️</div>
             <div>
-              <div class="font-bold text-slate-900 text-sm">Recopilaciones y Respaldos</div>
-              <p class="text-xs text-slate-500 mt-0.5">Inspecciona las colecciones de datos y exporta/importa copias JSON.</p>
+              <div class="font-bold text-slate-900 text-sm">Colecciones y Respaldos</div>
+              <p class="text-xs text-slate-500 mt-0.5">Inspecciona las colecciones de Firestore y exporta/importa copias JSON.</p>
             </div>
           </button>
           <button onclick="App.navigateTo('users')" class="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-400 hover:shadow-md transition text-left flex items-start gap-3.5 h-full">
@@ -1808,15 +1870,49 @@ const App = {
   renderCarnetView() {
     const accessiblePets = this.getAccessiblePets();
     const selector = document.getElementById('carnet-pet-selector');
+    const carnetCard = document.getElementById('printable-carnet');
+    const emptyState = document.getElementById('carnet-empty-state');
+    const actionBtns = ['btn-verify-carnet', 'btn-copy-carnet', 'btn-print-carnet'];
+
+    const setCarnetUnavailable = () => {
+      if (selector) selector.innerHTML = `<option value="">-- Sin mascotas vinculadas --</option>`;
+      if (carnetCard) carnetCard.classList.add('hidden');
+      if (emptyState) emptyState.classList.remove('hidden');
+      actionBtns.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      });
+    };
 
     if (accessiblePets.length === 0) {
-      if (selector) selector.innerHTML = `<option value="">Sin mascotas registradas</option>`;
+      this.selectedPetId = null;
+      setCarnetUnavailable();
       return;
     }
 
     if (!this.selectedPetId || !accessiblePets.some(p => p.id === this.selectedPetId)) {
       this.selectedPetId = accessiblePets[0].id;
     }
+
+    const pet = accessiblePets.find(p => p.id === this.selectedPetId);
+    if (!pet) {
+      setCarnetUnavailable();
+      return;
+    }
+
+    // Mostrar el Carnet solo cuando existe una mascota válida seleccionada
+    if (carnetCard) carnetCard.classList.remove('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
+    actionBtns.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
 
     if (selector) {
       selector.innerHTML = accessiblePets.map(p => {
@@ -1826,9 +1922,6 @@ const App = {
         </option>`;
       }).join('');
     }
-
-    const pet = accessiblePets.find(p => p.id === this.selectedPetId);
-    if (!pet) return;
 
     const owner = this.db.users.find(u => u.id === pet.ownerId);
     const records = this.db.vaccinations.filter(v => v.petId === pet.id);
@@ -1924,6 +2017,16 @@ const App = {
   onCarnetPetChange(petId) {
     this.selectedPetId = petId;
     this.renderCarnetView();
+  },
+
+  printCurrentCarnet() {
+    const accessiblePets = this.getAccessiblePets();
+    const validPet = accessiblePets.find(p => p.id === this.selectedPetId);
+    if (!validPet) {
+      this.showToast('Debe seleccionar una mascota válida antes de imprimir o descargar el carnet.', 'error');
+      return;
+    }
+    window.print();
   },
 
   /**
@@ -2162,6 +2265,20 @@ const App = {
     const rabiesEl = document.getElementById('epi-rabies-coverage-pct');
     if (rabiesEl) rabiesEl.textContent = `${rabiesPct}%`;
 
+    const rabiesMetaEl = document.getElementById('epi-rabies-meta-status');
+    if (rabiesMetaEl) {
+      if (this.db.pets.length === 0) {
+        rabiesMetaEl.textContent = 'Sin registros en censo';
+        rabiesMetaEl.className = 'text-[11px] text-slate-200 font-semibold';
+      } else if (rabiesPct >= 80) {
+        rabiesMetaEl.textContent = `✔ Cumple Meta OMS/OPS (≥ 80%)`;
+        rabiesMetaEl.className = 'text-[11px] text-emerald-300 font-semibold';
+      } else {
+        rabiesMetaEl.textContent = `⚠ Bajo Meta OMS/OPS (≥ 80%)`;
+        rabiesMetaEl.className = 'text-[11px] text-amber-300 font-semibold';
+      }
+    }
+
     const neighContainer = document.getElementById('epi-neighborhood-summary');
     if (neighContainer) {
       const countsByNeigh = {};
@@ -2359,7 +2476,7 @@ const App = {
 
   /**
    * ==========================================================================
-   * Vista 7 (EXCLUSIVA ADMINISTRADOR): Permisos API, Tokens, Recopilaciones y Cloud
+   * Vista 7 (EXCLUSIVA ADMINISTRADOR): Permisos API, Tokens, Colecciones y Cloud
    * ==========================================================================
    */
   regenerateAdminApiToken() {
@@ -2372,6 +2489,7 @@ const App = {
     if (idx !== -1) {
       this.db.users[idx].apiToken = newToken;
       window.DataStore.saveData(this.db);
+      window.GoogleCloudConfig.syncToCloud(window.GoogleCloudConfig.collections.USERS, this.db.users[idx], 'TOKEN_ROTATION');
     }
 
     window.GoogleCloudConfig.recordSyncEvent('TOKEN_ROTATION', 'auditoria_accesos', `Nuevo token maestro generado por ${this.currentUser.name}`);
@@ -2404,7 +2522,7 @@ const App = {
     }
 
     if (titleEl) {
-      titleEl.textContent = `Recopilación: ${collectionKey} (${dataSlice.length} documentos)`;
+      titleEl.textContent = `Colección: ${collectionKey} (${dataSlice.length} documentos)`;
     }
     outputEl.textContent = JSON.stringify(dataSlice, null, 2);
   },
@@ -2427,7 +2545,7 @@ const App = {
       const felinos = this.db.pets.filter(p => p.species === 'Felino').length;
       payload = {
         status: 200,
-        endpoint: 'https://antigravity.luch.dev/site/b8fc95dc-5aca-4e11-b80c-2fa0d8e8f0da/12e5c3d80acf70c398f608ea/api/v1/ocana/censo',
+        endpoint: `${window.PublicAPIConnector.getPublicSiteBaseUrl()}api/v1/ocana/censo`,
         municipality: 'Ocaña, Norte de Santander, Colombia',
         institution: 'Universidad Francisco de Paula Santander Seccional Ocaña (UFPSO)',
         timestamp: new Date().toISOString(),
@@ -2502,7 +2620,7 @@ const App = {
       tokenInput.value = this.currentUser.apiToken || 'tok_live_ocana_9f8e7d6c5b4a3210_ufpso';
     }
 
-    // Contadores de Recopilaciones (Colecciones)
+    // Contadores de Colecciones
     const countUsers = document.getElementById('col-count-users');
     const countPets = document.getElementById('col-count-pets');
     const countVacs = document.getElementById('col-count-vacs');
@@ -2513,6 +2631,19 @@ const App = {
     if (countPets) countPets.textContent = `${this.db.pets.length} docs`;
     if (countVacs) countVacs.textContent = `${this.db.vaccinations.length} docs`;
     if (countLogs) countLogs.textContent = `${logs.length} eventos`;
+
+    // Indicador en vivo de conexión Firebase Firestore
+    const fsStatusPill = document.getElementById('admin-firestore-status-pill');
+    if (fsStatusPill && window.FirebaseService) {
+      const st = window.FirebaseService.getStatus();
+      if (st.connected) {
+        fsStatusPill.textContent = `🟢 Firestore Conectado (${st.projectId})`;
+        fsStatusPill.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+      } else {
+        fsStatusPill.textContent = '🟡 Modo Híbrido Local (Configure js/firebase-config.js)';
+        fsStatusPill.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-200 border border-amber-400/30';
+      }
+    }
 
     this.renderAdminCollectionInspector(this.adminSelectedCollection);
 
@@ -2539,7 +2670,7 @@ const App = {
     }
   },
 
-  handleSaveCloudConfig() {
+  async handleSaveCloudConfig() {
     if (!this.currentUser || this.currentUser.role !== 'ADMINISTRADOR') return;
 
     const projectId = document.getElementById('gcp-project-id').value.trim();
@@ -2549,9 +2680,20 @@ const App = {
     const enabled = document.getElementById('gcp-enabled').checked;
 
     window.GoogleCloudConfig.saveConfig({ projectId, apiKey, publicWebhookUrl, region, enabled });
+
+    if (window.FirebaseService) {
+      await window.FirebaseService.init((event) => this.handleFirestoreUpdate(event));
+    }
+
     this.renderHeaderAndSidebar();
     this.renderCloudStatusView();
-    this.showToast('Parámetros de conexión Cloud Firestore, Tokens y Webhook API guardados correctamente.', 'success');
+    const isNowConnected = window.FirebaseService && window.FirebaseService.isConnected();
+    this.showToast(
+      isNowConnected
+        ? `Conexión en tiempo real activa con Firebase Firestore (${projectId}).`
+        : 'Parámetros Cloud guardados (Modo Híbrido local activo hasta ingresar credenciales válidas).',
+      'success'
+    );
   },
 
   exportDatabaseBackup() {
@@ -2603,11 +2745,30 @@ const App = {
     reader.readAsText(file);
   },
 
-  resetDemoData() {
+  async resetDemoData() {
     this.db = window.DataStore.resetToSeed();
-    window.GoogleCloudConfig.recordSyncEvent('DB_RESET', 'all_collections', 'Restauración de valores iniciales');
+    window.GoogleCloudConfig.recordSyncEvent('DB_RESET', 'all_collections', 'Restauración de semilla inicial');
+
+    if (window.FirebaseService && window.FirebaseService.isConnected()) {
+      const res = await window.FirebaseService.seedCollections(this.db, false);
+      if (res.seeded) {
+        this.showToast(
+          `Semilla inicial cargada en Firebase Firestore (${res.counts.users} usuarios, ${res.counts.pets} mascotas, ${res.counts.vaccinations} biológicos).`,
+          'success'
+        );
+      } else if (res.alreadyPopulated) {
+        this.showToast(
+          `Semilla local restablecida. Las colecciones en Firestore ya contienen datos (${res.counts.pets} mascotas, ${res.counts.vaccinations} biológicos).`,
+          'info'
+        );
+      } else {
+        this.showToast(`Semilla local restablecida. No se pudo escribir en Firestore: ${res.error || 'revise reglas de seguridad'}.`, 'error');
+      }
+    } else {
+      this.showToast('Los datos semilla iniciales han sido restablecidos localmente (configure js/firebase-config.js para cargarlos en Firestore).', 'info');
+    }
+
     this.renderAllActiveViews();
-    this.showToast('Los datos iniciales del sistema han sido restaurados.', 'info');
   },
 
   showToast(message, type = 'info') {

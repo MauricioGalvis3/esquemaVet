@@ -15,7 +15,7 @@ function buildSeedUsers() {
       role: 'PROPIETARIO',
       name: 'Franklin Mauricio Hernández Galvis',
       document: '1091678234',
-      email: 'fmhernandezg@ufpso.edu.co',
+      email: 'propietario@demo-ocana.co',
       phone: '3154829103',
       address: 'Barrio La Primavera, Ocaña, N. de S.',
       passwordHash: hash('Ocanavet2026*'),
@@ -30,7 +30,7 @@ function buildSeedUsers() {
       role: 'PROPIETARIO',
       name: 'Andrés Felipe Carrascal Gómez',
       document: '1091681920',
-      email: 'afcarrascalg@ufpso.edu.co',
+      email: 'propietario2@demo-ocana.co',
       phone: '3168291044',
       address: 'Sector El Carmen, Ocaña, N. de S.',
       passwordHash: hash('Ocanavet2026*'),
@@ -489,10 +489,26 @@ const DataStore = {
     try {
       const parsed = JSON.parse(raw);
       // Asegurar que exista el perfil Administrador si se cargó una base previa en localStorage
-      if (Array.isArray(parsed.users) && !parsed.users.some(u => u.role === 'ADMINISTRADOR')) {
-        const seedAdmin = buildSeedUsers().find(u => u.role === 'ADMINISTRADOR');
-        if (seedAdmin) {
-          parsed.users.push(seedAdmin);
+      if (Array.isArray(parsed.users)) {
+        let migrated = false;
+        if (!parsed.users.some(u => u.role === 'ADMINISTRADOR')) {
+          const seedAdmin = buildSeedUsers().find(u => u.role === 'ADMINISTRADOR');
+          if (seedAdmin) {
+            parsed.users.push(seedAdmin);
+            migrated = true;
+          }
+        }
+        // Migrar correos personales previos a correos de demostración
+        parsed.users.forEach(u => {
+          if (u.email === 'fmhernandezg@ufpso.edu.co') {
+            u.email = 'propietario@demo-ocana.co';
+            migrated = true;
+          } else if (u.email === 'afcarrascalg@ufpso.edu.co') {
+            u.email = 'propietario2@demo-ocana.co';
+            migrated = true;
+          }
+        });
+        if (migrated) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
         }
       }

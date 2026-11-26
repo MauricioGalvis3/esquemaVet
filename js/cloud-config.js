@@ -202,7 +202,7 @@ const PublicAPIConnector = {
    * Obtiene la URL pública del aplicativo para compartir o codificar en QR
    */
   getPublicSiteBaseUrl() {
-    const officialPublicUrl = 'https://antigravity.luch.dev/site/b8fc95dc-5aca-4e11-b80c-2fa0d8e8f0da/12e5c3d80acf70c398f608ea/';
+    const officialPublicUrl = 'https://mauriciogalvis3.github.io/esquemaVet/';
     if (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http')) {
       return window.location.origin + window.location.pathname;
     }
@@ -261,22 +261,28 @@ const GoogleCloudConfig = {
 
   recordSyncEvent(operation, collectionName, detail, customStatus = null) {
     const logs = this.getSyncLogs();
+    const isFsConnected = window.FirebaseService && window.FirebaseService.isConnected();
     const cfg = this.getConfig();
     const entry = {
-      id: `SYNC-${Date.now().toString().slice(-6)}`,
+      id: `SYNC-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 90 + 10)}`,
       timestamp: new Date().toISOString(),
       operation,
       collection: collectionName,
       detail,
-      status: customStatus || ((cfg.enabled && (cfg.apiKey || cfg.publicWebhookUrl)) ? 'SINCRONIZADO_CLOUD_API' : 'PERSISTIDO_LOCAL_HÍBRIDO')
+      status: customStatus || (isFsConnected ? 'FIRESTORE_REALTIME_OK' : (cfg.enabled && (cfg.apiKey || cfg.publicWebhookUrl)) ? 'SINCRONIZADO_CLOUD_API' : 'PERSISTIDO_LOCAL_HÍBRIDO')
     };
     logs.unshift(entry);
     localStorage.setItem(CLOUD_SYNC_LOG_KEY, JSON.stringify(logs.slice(0, 50)));
+
+    // Registrar también en la colección auditoria_accesos de Firestore si está conectado
+    if (isFsConnected && collectionName !== this.collections.AUDIT_LOGS) {
+      window.FirebaseService.saveDocument(this.collections.AUDIT_LOGS, entry);
+    }
     return entry;
   },
 
   /**
-   * Sincroniza una entidad con Google Cloud Firestore REST API o Webhook REST público
+   * Sincroniza una entidad con Firebase Firestore (SDK Modular v10) o Webhook REST público
    * y registra la transacción en la bitácora de auditoría.
    */
   async syncToCloud(collectionName, payload, actionLabel = 'UPSERT') {
@@ -284,22 +290,11 @@ const GoogleCloudConfig = {
     const recordId = payload.id || `DOC-${Date.now()}`;
     let remoteDelivered = false;
 
-    // 1. Si el usuario configuró Google Cloud Firestore REST API
-    if (cfg.enabled && cfg.apiKey && cfg.projectId) {
-      try {
-        const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(cfg.projectId)}/databases/(default)/documents/${encodeURIComponent(collectionName)}?documentId=${encodeURIComponent(recordId)}&key=${encodeURIComponent(cfg.apiKey)}`;
-        const firestoreFields = {};
-        Object.keys(payload).forEach(k => {
-          firestoreFields[k] = { stringValue: String(payload[k] ?? '') };
-        });
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fields: firestoreFields })
-        });
-        if (res.ok) remoteDelivered = true;
-      } catch (err) {
-        console.warn('[Google Cloud Firestore] Guardado en cola local de contingencia:', err.message);
+    // 1. Persistencia prioritaria mediante SDK Modular de Firebase Firestore
+    if (window.FirebaseService && window.FirebaseService.isConnected()) {
+      const fsRes = await window.FirebaseService.saveDocument(collectionName, payload);
+      if (fsRes && fsRes.synced) {
+        remoteDelivered = true;
       }
     }
 
@@ -326,8 +321,8 @@ const GoogleCloudConfig = {
     this.recordSyncEvent(
       actionLabel,
       collectionName,
-      `Documento ${recordId} procesado (${remoteDelivered ? 'Cloud REST 200 OK' : 'Almacenamiento Híbrido Local'})`,
-      remoteDelivered ? 'CLOUD_REST_200_OK' : null
+      `Documento ${recordId} procesado (${remoteDelivered ? 'Cloud Firestore OK' : 'Almacenamiento Híbrido Local'})`,
+      remoteDelivered ? 'FIRESTORE_SYNC_OK' : null
     );
 
     return {
@@ -338,15 +333,17 @@ const GoogleCloudConfig = {
   },
 
   /**
-   * Sincroniza la base de datos completa hacia los endpoints Cloud configurados
+   * Sincroniza la base de datos completa hacia Firebase Firestore
    */
   async pushEntireDatabase(db) {
     const totalDocs = (db.users?.length || 0) + (db.pets?.length || 0) + (db.vaccinations?.length || 0);
-    this.recordSyncEvent('FULL_DB_SYNC', 'all_collections', `Sincronización masiva iniciada (${totalDocs} registros sanitarios)`);
-    if (db.pets && db.pets[0]) {
-      await this.syncToCloud(this.collections.PETS, db.pets[0], 'BATCH_SYNC');
+    if (window.FirebaseService && window.FirebaseService.isConnected()) {
+      const res = await window.FirebaseService.pushAllCollections(db, this.getSyncLogs());
+      this.recordSyncEvent('FULL_DB_SYNC', 'all_collections', `Sincronización masiva en Firestore (${totalDocs} documentos)`, res.synced ? 'FIRESTORE_BATCH_OK' : 'LOCAL_FALLBACK');
+      return { totalDocs, synced: res.synced, timestamp: new Date().toISOString() };
     }
-    return { totalDocs, timestamp: new Date().toISOString() };
+    this.recordSyncEvent('FULL_DB_SYNC', 'all_collections', `Sincronización local registrada (${totalDocs} documentos - configure js/firebase-config.js para nube)`);
+    return { totalDocs, synced: false, timestamp: new Date().toISOString() };
   }
 };
 

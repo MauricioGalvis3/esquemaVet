@@ -97,7 +97,7 @@
             <div class="text-xs font-bold uppercase text-teal-700">Enlace Público Desplegado en la Web</div>
             <div class="flex items-center gap-2">
               <input id="fair-public-url-input" type="text" readonly
-                value="https://antigravity.luch.dev/site/b8fc95dc-5aca-4e11-b80c-2fa0d8e8f0da/12e5c3d80acf70c398f608ea/"
+                value="https://mauriciogalvis3.github.io/esquemaVet/"
                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono text-slate-700" />
               <button onclick="App.copyPublicSiteUrl()" class="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shrink-0">
                 Copiar URL
@@ -225,48 +225,58 @@
           </div>
         </div>
 
-        <!-- Selector Parejo de los 4 Perfiles del Sistema (Propietario, Veterinario, Salud Pública, Administrador) -->
-        <div class="bg-slate-900/75 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-5 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-              <i data-lucide="users" class="w-4 h-4"></i> Acceso Rápido por Tipo de Perfil (1 Clic)
-            </span>
-            <span class="text-[11px] text-slate-400">4 Roles Diferenciados</span>
+        <!-- Selector Colapsable de Entorno de Demostración (Feria UFPSO) -->
+        <details class="group bg-slate-900/75 backdrop-blur-md border border-amber-400/25 rounded-2xl overflow-hidden shadow-lg">
+          <summary class="cursor-pointer list-none p-4 md:px-5 flex items-center justify-between gap-2 select-none hover:bg-white/5 transition">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-extrabold uppercase tracking-wider">
+                Modo Demo
+              </span>
+              <span class="text-xs font-bold text-white">
+                Entorno de Demostración (Feria UFPSO) — Acceso Rápido por Perfil
+              </span>
+            </div>
+            <span class="text-xs text-teal-300 font-semibold group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="px-4 pb-4 md:px-5 md:pb-5 pt-1 space-y-3 border-t border-white/10">
+            <p class="text-[11px] text-slate-300">
+              Accesos de evaluación rápida habilitados únicamente para demostración académica (no presentes en despliegues productivos).
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button onclick="App.quickAccountSelect('USR-PRO-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 w-fit">Propietario</span>
+                <div>
+                  <div class="font-bold text-xs text-white truncate">Franklin Hernández</div>
+                  <div class="text-[10px] text-slate-400 truncate">Carnet y Mis Mascotas</div>
+                </div>
+              </button>
+
+              <button onclick="App.quickAccountSelect('USR-VET-01')" class="p-3 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-left transition flex flex-col justify-between h-24">
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-400/20 text-teal-200 w-fit">Veterinario</span>
+                <div>
+                  <div class="font-bold text-xs text-white truncate">Dr. Carlos Quintero</div>
+                  <div class="text-[10px] text-teal-100/80 truncate">Pacientes y Vacunación</div>
+                </div>
+              </button>
+
+              <button onclick="App.quickAccountSelect('USR-ENT-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 w-fit">Salud Pública</span>
+                <div>
+                  <div class="font-bold text-xs text-white truncate">Secretaría de Salud</div>
+                  <div class="text-[10px] text-slate-400 truncate">Censo y Mapa Ocaña</div>
+                </div>
+              </button>
+
+              <button onclick="App.quickAccountSelect('USR-ADM-01')" class="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-left transition flex flex-col justify-between h-24">
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 w-fit">Administrador</span>
+                <div>
+                  <div class="font-bold text-xs text-white truncate">Admin. del Sistema</div>
+                  <div class="text-[10px] text-amber-200/80 truncate">API, Tokens y Cloud BD</div>
+                </div>
+              </button>
+            </div>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <button onclick="App.quickAccountSelect('USR-PRO-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
-              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 w-fit">Propietario</span>
-              <div>
-                <div class="font-bold text-xs text-white truncate">Franklin Hernández</div>
-                <div class="text-[10px] text-slate-400 truncate">Carnet y Mis Mascotas</div>
-              </div>
-            </button>
-
-            <button onclick="App.quickAccountSelect('USR-VET-01')" class="p-3 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-left transition flex flex-col justify-between h-24">
-              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-400/20 text-teal-200 w-fit">Veterinario</span>
-              <div>
-                <div class="font-bold text-xs text-white truncate">Dr. Carlos Quintero</div>
-                <div class="text-[10px] text-teal-100/80 truncate">Pacientes y Vacunación</div>
-              </div>
-            </button>
-
-            <button onclick="App.quickAccountSelect('USR-ENT-01')" class="p-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-left transition flex flex-col justify-between h-24">
-              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 w-fit">Salud Pública</span>
-              <div>
-                <div class="font-bold text-xs text-white truncate">Secretaría de Salud</div>
-                <div class="text-[10px] text-slate-400 truncate">Censo y Mapa Ocaña</div>
-              </div>
-            </button>
-
-            <button onclick="App.quickAccountSelect('USR-ADM-01')" class="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-left transition flex flex-col justify-between h-24">
-              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 w-fit">Administrador</span>
-              <div>
-                <div class="font-bold text-xs text-white truncate">Admin. del Sistema</div>
-                <div class="text-[10px] text-amber-200/80 truncate">API, Tokens y Cloud BD</div>
-              </div>
-            </button>
-          </div>
-        </div>
+        </details>
       </div>
 
       <!-- Columna Derecha: Tarjeta de Inicio de Sesión y Registro -->
@@ -316,12 +326,17 @@
             </button>
           </form>
 
-          <div class="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-            <div class="font-bold text-slate-700">Credenciales de acceso rápido:</div>
-            <div>• <strong>Propietario:</strong> <code class="text-teal-700">fmhernandezg@ufpso.edu.co</code> / <code class="bg-slate-100 px-1 rounded">Ocanavet2026*</code></div>
-            <div>• <strong>Veterinario:</strong> <code class="text-teal-700">dr.quintero@vetocana.com</code> / <code class="bg-slate-100 px-1 rounded">VetOcana2026*</code></div>
-            <div>• <strong>Administrador:</strong> <code class="text-amber-700">admin@esquemavet.co</code> / <code class="bg-slate-100 px-1 rounded">AdminOcana2026*</code></div>
-          </div>
+          <details class="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 group">
+            <summary class="cursor-pointer font-bold text-slate-700 hover:text-teal-700 flex items-center justify-between select-none list-none">
+              <span>🧪 Entorno de Demostración (Feria UFPSO) — Ver credenciales de prueba</span>
+              <span class="text-[10px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div class="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div>• <strong>Propietario:</strong> <code class="text-teal-700">propietario@demo-ocana.co</code> / <code class="bg-white border border-slate-200 px-1 rounded">Ocanavet2026*</code></div>
+              <div>• <strong>Veterinario:</strong> <code class="text-teal-700">dr.quintero@vetocana.com</code> / <code class="bg-white border border-slate-200 px-1 rounded">VetOcana2026*</code></div>
+              <div>• <strong>Administrador:</strong> <code class="text-amber-700">admin@esquemavet.co</code> / <code class="bg-white border border-slate-200 px-1 rounded">AdminOcana2026*</code></div>
+            </div>
+          </details>
         </div>
 
         <!-- Formulario 2: Registro de Nuevas Cuentas -->
@@ -756,20 +771,31 @@
               </select>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button onclick="App.openPublicVerifierModal(App.selectedPetId)" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition flex items-center gap-1.5">
+              <button id="btn-verify-carnet" onclick="App.openPublicVerifierModal(App.selectedPetId)" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition flex items-center gap-1.5">
                 <span>🔍 Validar QR</span>
               </button>
-              <button onclick="App.copyCurrentCarnetVerifyLink()" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+              <button id="btn-copy-carnet" onclick="App.copyCurrentCarnetVerifyLink()" class="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
                 <span>🔗 Copiar Enlace</span>
               </button>
-              <button onclick="window.print()" class="w-full sm:w-auto justify-center px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-2">
+              <button id="btn-print-carnet" onclick="App.printCurrentCarnet()" class="w-full sm:w-auto justify-center px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-2">
                 <span>🖨️ Imprimir / Guardar PDF</span>
               </button>
             </div>
           </div>
 
-          <!-- Documento Oficial: Carnet Sanitario Digital -->
-          <div id="printable-carnet" class="carnet-card rounded-3xl overflow-hidden">
+          <!-- Estado Vacío: Evita mostrar o imprimir el Carnet con datos placeholder -->
+          <div id="carnet-empty-state" class="bg-white rounded-3xl border border-dashed border-slate-300 p-8 md:p-12 text-center space-y-3 no-print">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl">
+              🪪
+            </div>
+            <h3 class="text-base font-extrabold text-slate-800">No hay una mascota válida seleccionada</h3>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+              Seleccione una mascota registrada en el selector superior o registre una nueva ficha clínica para generar su Carnet Sanitario Digital oficial con código QR.
+            </p>
+          </div>
+
+          <!-- Documento Oficial: Carnet Sanitario Digital (Oculto si no hay mascota válida) -->
+          <div id="printable-carnet" class="hidden carnet-card rounded-3xl overflow-hidden">
             <!-- Cabecera del Carnet con QR Real Escaneable -->
             <div class="carnet-header-banner p-5 md:p-7 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-5">
               <div class="flex items-center gap-3.5">
@@ -793,9 +819,9 @@
               <div onclick="App.openPublicVerifierModal(App.selectedPetId)" class="cursor-pointer flex items-center justify-between sm:justify-end gap-3.5 bg-white/95 text-slate-900 p-3 rounded-2xl shadow-lg hover:scale-[1.01] transition">
                 <div class="text-left sm:text-right pr-1">
                   <div class="text-[10px] font-bold uppercase text-slate-400">Registro Sanitario</div>
-                  <div id="carnet-pet-id" class="font-mono font-extrabold text-base text-teal-700">OCA-PET-001</div>
-                  <div id="carnet-global-status-badge" class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-1">
-                    ✔ Esquema al Día
+                  <div id="carnet-pet-id" class="font-mono font-extrabold text-base text-teal-700">—</div>
+                  <div id="carnet-global-status-badge" class="inline-flex items-center gap-1 text-[10px] text-slate-600 font-bold bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 mt-1">
+                    Sin verificar
                   </div>
                 </div>
                 <div id="carnet-qr-box" class="shrink-0"></div>
@@ -809,32 +835,32 @@
                 <div class="bg-slate-50/80 rounded-2xl p-5 border border-slate-200/90 space-y-3">
                   <div class="text-xs font-bold uppercase tracking-wider text-teal-800 border-b border-slate-200 pb-2 flex items-center justify-between">
                     <span>1. Datos de la Mascota</span>
-                    <span id="carnet-pet-neighborhood" class="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">Sector Ocaña</span>
+                    <span id="carnet-pet-neighborhood" class="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">—</span>
                   </div>
                   <div class="grid grid-cols-2 gap-3 text-xs">
                     <div>
                       <span class="text-slate-400 block">Nombre:</span>
-                      <span id="carnet-pet-name" class="font-extrabold text-base text-slate-900">Max</span>
+                      <span id="carnet-pet-name" class="font-extrabold text-base text-slate-900">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Especie y Raza:</span>
-                      <span id="carnet-pet-species" class="font-bold text-slate-800">Canino</span>
+                      <span id="carnet-pet-species" class="font-bold text-slate-800">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Sexo / Estado:</span>
-                      <span id="carnet-pet-sex" class="font-semibold text-slate-800">Macho</span>
+                      <span id="carnet-pet-sex" class="font-semibold text-slate-800">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Edad / Nacimiento:</span>
-                      <span id="carnet-pet-age" class="font-semibold text-slate-800">2 años</span>
+                      <span id="carnet-pet-age" class="font-semibold text-slate-800">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Peso y Color:</span>
-                      <span id="carnet-pet-weight" class="font-semibold text-slate-800">28.5 kg</span>
+                      <span id="carnet-pet-weight" class="font-semibold text-slate-800">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Microchip / Placa:</span>
-                      <span id="carnet-pet-chip" class="font-mono font-bold text-teal-700">COL-OCA</span>
+                      <span id="carnet-pet-chip" class="font-mono font-bold text-teal-700">—</span>
                     </div>
                   </div>
                 </div>
@@ -848,19 +874,19 @@
                   <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="col-span-2">
                       <span class="text-slate-400 block">Nombre Completo:</span>
-                      <span id="carnet-owner-name" class="font-bold text-sm text-slate-900">Nombre del Propietario</span>
+                      <span id="carnet-owner-name" class="font-bold text-sm text-slate-900">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Documento:</span>
-                      <span id="carnet-owner-doc" class="font-mono font-bold text-slate-800">1091...</span>
+                      <span id="carnet-owner-doc" class="font-mono font-bold text-slate-800">—</span>
                     </div>
                     <div>
                       <span class="text-slate-400 block">Teléfono / WhatsApp:</span>
-                      <span id="carnet-owner-phone" class="font-semibold text-slate-800">315...</span>
+                      <span id="carnet-owner-phone" class="font-semibold text-slate-800">—</span>
                     </div>
                     <div class="col-span-2">
                       <span class="text-slate-400 block">Dirección en Ocaña:</span>
-                      <span id="carnet-owner-address" class="font-semibold text-slate-800">Ocaña, Norte de Santander</span>
+                      <span id="carnet-owner-address" class="font-semibold text-slate-800">—</span>
                     </div>
                   </div>
                 </div>
@@ -1189,8 +1215,8 @@
             </div>
             <div class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl p-3.5 text-right">
               <div class="text-[10px] font-bold uppercase text-teal-200">Cobertura Antirrábica</div>
-              <div id="epi-rabies-coverage-pct" class="text-2xl font-extrabold text-white">83%</div>
-              <div class="text-[11px] text-emerald-300 font-semibold">Meta OMS/OPS: ≥ 80%</div>
+              <div id="epi-rabies-coverage-pct" class="text-2xl font-extrabold text-white">--%</div>
+              <div id="epi-rabies-meta-status" class="text-[11px] text-teal-100 font-semibold">Calculando...</div>
             </div>
           </div>
 
@@ -1277,7 +1303,7 @@
         </section>
 
         <!-- ==================================================================
-             VISTA 7 (EXCLUSIVA ADMINISTRADOR): PERMISOS API, TOKENS, RECOPILACIONES Y CLOUD
+             VISTA 7 (EXCLUSIVA ADMINISTRADOR): PERMISOS API, TOKENS, COLECCIONES Y CLOUD
              ================================================================== -->
         <section id="view-cloud" class="view-section hidden space-y-6">
           <!-- Banner de Seguridad Exclusivo Administrador -->
@@ -1287,11 +1313,16 @@
                 🔒 MÓDULO EXCLUSIVO ADMINISTRADOR DEL SISTEMA
               </span>
               <h2 class="text-xl font-extrabold mt-1">
-                Gestión de Permisos de API, Tokens de Acceso, Recopilaciones y Base de Datos Cloud
+                Gestión de Permisos de API, Tokens de Acceso, Colecciones y Base de Datos Cloud
               </h2>
               <p class="text-xs text-slate-300 mt-1">
                 Este panel se encuentra aislado de las vistas de Médicos Veterinarios y Propietarios para proteger las credenciales de infraestructura y las colecciones de datos.
               </p>
+            </div>
+            <div class="shrink-0">
+              <span id="admin-firestore-status-pill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-200 border border-amber-400/30">
+                🟡 Modo Híbrido Local
+              </span>
             </div>
           </div>
 
@@ -1323,18 +1354,18 @@
               </div>
               <div class="md:col-span-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
                 <div class="font-bold text-slate-800">Permisos del Token:</div>
-                <div class="text-slate-600">✔ Lectura/Escritura en Recopilaciones Cloud</div>
+                <div class="text-slate-600">✔ Lectura/Escritura en Colecciones Cloud</div>
                 <div class="text-slate-600">✔ Validación Criptográfica SHA-256</div>
               </div>
             </div>
           </div>
 
-          <!-- 2. Explorador de Recopilaciones (Colecciones de la Base de Datos) -->
+          <!-- 2. Explorador de Colecciones de la Base de Datos -->
           <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-4">
             <div class="border-b border-slate-100 pb-3">
-              <span class="text-xs font-bold uppercase text-teal-700">Base de Datos Documental</span>
-              <h3 class="text-base font-bold text-slate-900">Recopilaciones (Colecciones) del Sistema</h3>
-              <p class="text-xs text-slate-500">Seleccione una recopilación para inspeccionar su estructura JSON en tiempo real.</p>
+              <span class="text-xs font-bold uppercase text-teal-700">Base de Datos Documental (Firestore / Híbrida)</span>
+              <h3 class="text-base font-bold text-slate-900">Colecciones del Sistema</h3>
+              <p class="text-xs text-slate-500">Seleccione una colección para inspeccionar su estructura JSON en tiempo real.</p>
             </div>
 
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1365,7 +1396,7 @@
 
             <div class="rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
               <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-300 font-mono">
-                <span id="admin-collection-title">Recopilación: usuarios_sistema</span>
+                <span id="admin-collection-title">Colección: usuarios_sistema</span>
                 <span class="text-emerald-400">JSON Document Store</span>
               </div>
               <pre id="admin-collection-json-preview" class="p-4 text-xs font-mono text-amber-300 overflow-x-auto max-h-60 leading-relaxed"></pre>
@@ -1492,7 +1523,7 @@
 
                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                   <div class="text-xs font-bold text-slate-800">1. Exportar Copia de Seguridad Completa</div>
-                  <p class="text-xs text-slate-500">Descarga todas las recopilaciones de usuarios, mascotas y biológicos en un archivo JSON.</p>
+                  <p class="text-xs text-slate-500">Descarga todas las colecciones de usuarios, mascotas y biológicos en un archivo JSON.</p>
                   <button onclick="App.exportDatabaseBackup()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow transition">
                     💾 Descargar Respaldo (.JSON)
                   </button>
@@ -1504,9 +1535,9 @@
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-xs text-slate-400">Restaurar datos semilla de demostración:</span>
-                <button onclick="App.resetDemoData()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+              <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <span class="text-xs text-slate-500">Cargar datos semilla (local y en Firestore si está vacío):</span>
+                <button onclick="App.resetDemoData()" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 text-xs font-bold transition shrink-0">
                   Restablecer Semilla
                 </button>
               </div>
@@ -1515,14 +1546,14 @@
 
           <!-- Bitácora de Sincronización y Auditoría -->
           <div class="bg-white rounded-2xl border border-slate-200/90 p-5 md:p-6 shadow-sm space-y-3">
-            <h3 class="font-bold text-slate-900 text-base">Bitácora de Transacciones y Auditoría de Recopilaciones</h3>
+            <h3 class="font-bold text-slate-900 text-base">Bitácora de Transacciones y Auditoría de Colecciones</h3>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase text-slate-500">
                     <th class="px-3 py-2.5">Fecha y Hora</th>
                     <th class="px-3 py-2.5">Operación</th>
-                    <th class="px-3 py-2.5">Recopilación</th>
+                    <th class="px-3 py-2.5">Colección</th>
                     <th class="px-3 py-2.5">Detalle de Transacción</th>
                   </tr>
                 </thead>
@@ -1536,9 +1567,12 @@
     </div>
   </div>
 
-  <!-- Scripts de Producción -->
+  <!-- Configuración Aislada de Firebase Firestore y Scripts de Producción -->
+  <script src="js/firebase-config.js"></script>
   <script src="js/cloud-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
+  <!-- SDK Modular de Firebase Firestore (v10 CDN) -->
+  <script type="module" src="js/firebase-service.js"></script>
 </body>
 </html>

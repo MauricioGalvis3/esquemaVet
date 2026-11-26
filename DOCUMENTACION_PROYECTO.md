@@ -20,23 +20,23 @@ Para ofrecer una experiencia limpia, comprensible y segura tanto para los **Prop
 1. **👤 Propietario de Mascota (`PROPIETARIO`):**
    - **Menú Parejo (4 módulos):** *Inicio*, *Mi Carnet Digital*, *Mis Mascotas*, *Mi Perfil y Clave*.
    - **Visualización:** Guía rápida en 3 pasos, consulta e impresión de su Carnet Sanitario Digital con código QR, fechas de próximos refuerzos y actualización de sus datos de contacto.
-   - **Aislamiento:** No tiene acceso a módulos clínicos, ni a directorios de otros usuarios, ni a configuraciones de API, tokens o recopilaciones de base de datos.
+   - **Aislamiento:** No tiene acceso a módulos clínicos, ni a directorios de otros usuarios, ni a configuraciones de API, tokens o colecciones de base de datos.
 
 2. **🩺 Médico Veterinario (`VETERINARIO`):**
    - **Menú Parejo (6 módulos):** *Inicio Clínico*, *Pacientes*, *Aplicar Vacuna*, *Carnets Digitales*, *Propietarios*, *Mapa Sanitario*.
    - **Visualización:** Guía clínica rápida en 3 pasos (*1. Registrar Propietario*, *2. Registrar Mascota*, *3. Certificar Vacuna / Dosis*), asistente de autocompletado de protocolos biológicos por peso, firma electrónica (`COMVEZCOL`) y recordatorios preventivos por WhatsApp.
-   - **Aislamiento:** Se ocultaron de su interfaz todas las configuraciones de tipo administrador (sin acceso a llaves de API, tokens Bearer, recopilaciones JSON crudas, webhooks ni consola OpenAPI).
+   - **Aislamiento:** Se ocultaron de su interfaz todas las configuraciones de tipo administrador (sin acceso a llaves de API, tokens Bearer, colecciones JSON crudas, webhooks ni consola OpenAPI).
 
 3. **🏛️ Salud Pública Municipal (`ENTIDAD_SANITARIA`):**
    - **Menú Parejo (5 módulos):** *Resumen Municipal*, *Mapa y Censo Ocaña*, *Verificar Carnets*, *Padrón Animal*, *Mi Perfil*.
-   - **Visualización:** Mapa georreferenciado de Ocaña (`OpenStreetMap` + `Leaflet`), indicadores de cobertura antirrábica (meta OMS/OPS ≥ 80%, ODS 3) y exportación de la matriz epidemiológica a Excel (`.CSV`).
+   - **Visualización:** Mapa georreferenciado de Ocaña (`OpenStreetMap` + `Leaflet`), indicadores de cobertura antirrábica calculados dinámicamente (meta OMS/OPS ≥ 80%, ODS 3) y exportación de la matriz epidemiológica a Excel (`.CSV`).
 
 4. **⚙️ Administrador del Sistema (`ADMINISTRADOR` — Nuevo Perfil):**
    - **Menú Parejo (6 módulos):** *Panel General*, *API, Tokens y Cloud*, *Usuarios y Permisos*, *Base de Mascotas*, *Carnets Digitales*, *Mapa Epidemiológico*.
    - **Funciones Exclusivas:**
      - **Gestión de Tokens de API y Permisos:** Visualización, copia y rotación del Bearer Token Maestro (`tok_live_ocana_...`).
-     - **Explorador de Recopilaciones (Colecciones Documentales):** Inspección en tiempo real de las colecciones `usuarios_sistema`, `mascotas_censo`, `historial_biologicos` y `auditoria_accesos`.
-     - **Consola OpenAPI REST y Credenciales Google Cloud:** Configuración de `Project ID`, `Web API Key`, `Webhook REST`, exportación e importación de respaldos completos (`.JSON`) y auditoría de hashes criptográficos (`sha256v2$...`).
+     - **Explorador de Colecciones Documentales (Firebase Firestore):** Inspección en tiempo real de las colecciones `usuarios_sistema`, `mascotas_censo`, `historial_biologicos` y `auditoria_accesos`.
+     - **Persistencia Híbrida en la Nube (`js/firebase-config.js` + `js/firebase-service.js`):** Integración modular con Firebase Firestore v10 vía CDN con respaldo automático a `localStorage` y botón **Restablecer Semilla** conectado para poblar colecciones vacías en Firestore.
 
 ---
 
@@ -52,7 +52,7 @@ Para ofrecer una experiencia limpia, comprensible y segura tanto para los **Prop
 
 | Perfil | Titular | Usuario (Correo o Documento) | Contraseña |
 | :--- | :--- | :--- | :--- |
-| **Propietario** | Franklin Mauricio Hernández | `fmhernandezg@ufpso.edu.co` o `1091678234` | `Ocanavet2026*` *(o `123456`)* |
+| **Propietario** | Franklin Mauricio Hernández | `propietario@demo-ocana.co` o `1091678234` | `Ocanavet2026*` *(o `123456`)* |
 | **Médico Veterinario** | Dr. Carlos Eduardo Quintero | `dr.quintero@vetocana.com` o `88245910` | `VetOcana2026*` *(o `123456`)* |
 | **Salud Pública** | Secretaría de Salud de Ocaña | `saludpublica@ocana-nortedesantander.gov.co` | `SaludOcana2026*` *(o `123456`)* |
 | **Administrador (Nuevo)** | Administrador General del Sistema | `admin@esquemavet.co` o `1091000001` | `AdminOcana2026*` *(o `123456`)* |
