@@ -263,6 +263,22 @@ const App = {
         }
       });
     }
+
+    const editPetForm = document.getElementById('form-edit-pet');
+    if (editPetForm) {
+      editPetForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleSaveEditPet();
+      });
+    }
+
+    const editUserForm = document.getElementById('form-edit-user');
+    if (editUserForm) {
+      editUserForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleSaveEditUser();
+      });
+    }
   },
 
   /**
@@ -1811,10 +1827,15 @@ const App = {
                 ${petVacs.length} dosis
               </span>
             </td>
-            <td class="px-4 py-3.5 text-right space-x-1.5">
+            <td class="px-4 py-3.5 text-right space-x-1.5 whitespace-nowrap">
               <button onclick="App.navigateTo('carnet', '${pet.id}')" class="px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition">
                 Carnet QR
               </button>
+              ${this.currentUser.role === 'VETERINARIO' || this.currentUser.role === 'ADMINISTRADOR' ? `
+                <button onclick="App.openEditPetModal('${pet.id}')" class="px-2.5 py-1.5 bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold rounded-lg hover:bg-slate-200 transition">
+                  ✏️ Editar
+                </button>
+              ` : ''}
               ${this.currentUser.role === 'VETERINARIO' ? `
                 <button onclick="App.openVaccinateForPet('${pet.id}')" class="px-2.5 py-1.5 bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg hover:bg-amber-200 transition">
                   + Vacunar
@@ -1853,10 +1874,15 @@ const App = {
               <div><strong>Barrio:</strong> ${pet.neighborhood || 'Ocaña'}</div>
               <div><strong>Dueño:</strong> ${owner ? owner.name.split(' ')[0] : 'N/A'}</div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               <button onclick="App.navigateTo('carnet', '${pet.id}')" class="flex-1 py-2.5 bg-teal-600 text-white text-xs font-bold rounded-xl shadow-sm">
-                🪪 Ver Carnet Digital
+                🪪 Ver Carnet
               </button>
+              ${this.currentUser.role === 'VETERINARIO' || this.currentUser.role === 'ADMINISTRADOR' ? `
+                <button onclick="App.openEditPetModal('${pet.id}')" class="px-3.5 py-2.5 bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl">
+                  ✏️ Editar
+                </button>
+              ` : ''}
               ${this.currentUser.role === 'VETERINARIO' ? `
                 <button onclick="App.openVaccinateForPet('${pet.id}')" class="px-3.5 py-2.5 bg-amber-100 text-amber-900 text-xs font-bold rounded-xl">
                   💉 Vacunar
@@ -1877,6 +1903,215 @@ const App = {
       select.value = petId;
       this.renderVetPrecheckHistory(petId);
     }
+  },
+
+  /**
+   * ==========================================================================
+   * Edición de Mascotas y Perfiles (Corrección de Errores por Veterinario / Admin)
+   * ==========================================================================
+   */
+  openEditPetModal(petId) {
+    if (!this.currentUser || (this.currentUser.role !== 'VETERINARIO' && this.currentUser.role !== 'ADMINISTRADOR')) {
+      this.showToast('Solo los Médicos Veterinarios o Administradores pueden editar fichas de mascotas.', 'error');
+      return;
+    }
+
+    const pet = this.db.pets.find(p => p.id === petId);
+    if (!pet) return;
+
+    const owners = this.db.users.filter(u => u.role === 'PROPIETARIO');
+    const ownerSelect = document.getElementById('edit-pet-owner-id');
+    if (ownerSelect) {
+      ownerSelect.innerHTML = owners.map(o =>
+        `<option value="${o.id}" ${o.id === pet.ownerId ? 'selected' : ''}>${o.name} — C.C. ${o.document}</option>`
+      ).join('');
+    }
+
+    document.getElementById('edit-pet-id').value = pet.id;
+    document.getElementById('edit-pet-name').value = pet.name || '';
+    document.getElementById('edit-pet-species').value = pet.species || 'Canino';
+    document.getElementById('edit-pet-breed').value = pet.breed || '';
+    document.getElementById('edit-pet-sex').value = pet.sex || 'Macho';
+    document.getElementById('edit-pet-birthdate').value = pet.birthDate || '';
+    document.getElementById('edit-pet-weight').value = pet.weightKg ?? '';
+    document.getElementById('edit-pet-color').value = pet.color || '';
+    document.getElementById('edit-pet-neighborhood').value = pet.neighborhood || 'La Primavera';
+    document.getElementById('edit-pet-microchip').value = pet.microchipOrTag || '';
+    document.getElementById('edit-pet-sterilized').value = pet.sterilized ? 'true' : 'false';
+
+    const modal = document.getElementById('edit-pet-modal');
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeEditPetModal() {
+    const modal = document.getElementById('edit-pet-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  handleSaveEditPet() {
+    if (!this.currentUser || (this.currentUser.role !== 'VETERINARIO' && this.currentUser.role !== 'ADMINISTRADOR')) {
+      return;
+    }
+
+    const petId = document.getElementById('edit-pet-id').value;
+    const idx = this.db.pets.findIndex(p => p.id === petId);
+    if (idx === -1) return;
+
+    const name = document.getElementById('edit-pet-name').value.trim();
+    const species = document.getElementById('edit-pet-species').value;
+    const breed = document.getElementById('edit-pet-breed').value.trim();
+    const sex = document.getElementById('edit-pet-sex').value;
+    const birthDate = document.getElementById('edit-pet-birthdate').value;
+    const weightKg = parseFloat(document.getElementById('edit-pet-weight').value) || 0;
+    const color = document.getElementById('edit-pet-color').value.trim();
+    const neighborhood = document.getElementById('edit-pet-neighborhood').value;
+    const microchipOrTag = document.getElementById('edit-pet-microchip').value.trim();
+    const sterilized = document.getElementById('edit-pet-sterilized').value === 'true';
+    const ownerId = document.getElementById('edit-pet-owner-id').value;
+
+    if (!name || !breed || !birthDate || !ownerId) {
+      this.showToast('Complete todos los campos obligatorios de la mascota.', 'error');
+      return;
+    }
+
+    const prevNeighborhood = this.db.pets[idx].neighborhood;
+    this.db.pets[idx] = {
+      ...this.db.pets[idx],
+      name,
+      species,
+      breed,
+      sex,
+      birthDate,
+      weightKg,
+      color: color || 'Sin especificar',
+      neighborhood,
+      microchipOrTag: microchipOrTag || this.db.pets[idx].microchipOrTag,
+      sterilized,
+      ownerId
+    };
+
+    // Si cambió de barrio, recalcular coordenadas de referencia en Ocaña
+    if (neighborhood !== prevNeighborhood) {
+      const baseCoords = window.OcanaGeoPoints?.neighborhoodCoords?.[neighborhood] || { lat: 8.2377, lng: -73.3560 };
+      this.db.pets[idx].lat = Number((baseCoords.lat + (Math.random() - 0.5) * 0.002).toFixed(4));
+      this.db.pets[idx].lng = Number((baseCoords.lng + (Math.random() - 0.5) * 0.002).toFixed(4));
+    }
+
+    window.DataStore.saveData(this.db);
+    window.GoogleCloudConfig.syncToCloud(window.GoogleCloudConfig.collections.PETS, this.db.pets[idx], 'PET_UPDATE');
+
+    this.closeEditPetModal();
+    this.renderAllActiveViews();
+    this.showToast(`Ficha de "${name}" (${petId}) actualizada y sincronizada correctamente.`, 'success');
+  },
+
+  openEditUserModal(userId) {
+    const targetUser = this.db.users.find(u => u.id === userId);
+    if (!targetUser) return;
+
+    const canEdit =
+      this.currentUser.role === 'ADMINISTRADOR' ||
+      (this.currentUser.role === 'VETERINARIO' && targetUser.role === 'PROPIETARIO');
+
+    if (!canEdit) {
+      this.showToast('No tiene permisos para editar este perfil.', 'error');
+      return;
+    }
+
+    document.getElementById('edit-user-id').value = targetUser.id;
+    document.getElementById('edit-user-name').value = targetUser.name || '';
+    document.getElementById('edit-user-document').value = targetUser.document || '';
+    document.getElementById('edit-user-phone').value = targetUser.phone || '';
+    document.getElementById('edit-user-email').value = targetUser.email || '';
+    document.getElementById('edit-user-address').value = targetUser.address || '';
+    document.getElementById('edit-user-password').value = '';
+
+    const vetBox = document.getElementById('edit-user-vet-fields');
+    if (vetBox) {
+      if (targetUser.role === 'VETERINARIO') {
+        vetBox.classList.remove('hidden');
+        document.getElementById('edit-user-license').value = targetUser.licenseNumber || '';
+        document.getElementById('edit-user-clinic').value = targetUser.clinicName || '';
+      } else {
+        vetBox.classList.add('hidden');
+      }
+    }
+
+    const modal = document.getElementById('edit-user-modal');
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeEditUserModal() {
+    const modal = document.getElementById('edit-user-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  handleSaveEditUser() {
+    const userId = document.getElementById('edit-user-id').value;
+    const idx = this.db.users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+
+    const targetUser = this.db.users[idx];
+    const canEdit =
+      this.currentUser.role === 'ADMINISTRADOR' ||
+      (this.currentUser.role === 'VETERINARIO' && targetUser.role === 'PROPIETARIO');
+
+    if (!canEdit) return;
+
+    const name = document.getElementById('edit-user-name').value.trim();
+    const documentNum = document.getElementById('edit-user-document').value.trim();
+    const phone = document.getElementById('edit-user-phone').value.trim();
+    const email = document.getElementById('edit-user-email').value.trim();
+    const address = document.getElementById('edit-user-address').value.trim();
+    const newPassword = document.getElementById('edit-user-password').value.trim();
+
+    if (!name || !documentNum || !phone || !email) {
+      this.showToast('Complete nombre, documento, teléfono y correo electrónico.', 'error');
+      return;
+    }
+
+    const conflict = this.db.users.find(
+      u => u.id !== userId && (
+        String(u.email || '').toLowerCase() === email.toLowerCase() ||
+        String(u.document || '').toLowerCase() === documentNum.toLowerCase()
+      )
+    );
+    if (conflict) {
+      this.showToast('Ese correo electrónico o número de documento ya pertenece a otra cuenta.', 'error');
+      return;
+    }
+
+    this.db.users[idx].name = name;
+    this.db.users[idx].document = documentNum;
+    this.db.users[idx].phone = phone;
+    this.db.users[idx].email = email;
+    this.db.users[idx].address = address || 'Ocaña, Norte de Santander';
+
+    if (targetUser.role === 'VETERINARIO') {
+      this.db.users[idx].licenseNumber = document.getElementById('edit-user-license').value.trim();
+      this.db.users[idx].clinicName = document.getElementById('edit-user-clinic').value.trim();
+    }
+
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        this.showToast('Si desea cambiar la contraseña, debe tener mínimo 6 caracteres.', 'error');
+        return;
+      }
+      this.db.users[idx].passwordHash = window.SecurityEngine.hashPassword(newPassword);
+      delete this.db.users[idx].legacyPass;
+    }
+
+    if (this.currentUser.id === userId) {
+      this.currentUser = this.db.users[idx];
+    }
+
+    window.DataStore.saveData(this.db);
+    window.GoogleCloudConfig.syncToCloud(window.GoogleCloudConfig.collections.USERS, this.db.users[idx], 'USER_UPDATE');
+
+    this.closeEditUserModal();
+    this.renderHeaderAndSidebar();
+    this.renderAllActiveViews();
+    this.showToast(`Perfil de "${name}" actualizado y sincronizado correctamente.`, 'success');
   },
 
   /**
@@ -2243,6 +2478,13 @@ const App = {
                       `).join('')
                 }
               </div>
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap">
+              ${(this.currentUser.role === 'ADMINISTRADOR' || (this.currentUser.role === 'VETERINARIO' && u.role === 'PROPIETARIO')) ? `
+                <button onclick="App.openEditUserModal('${u.id}')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold transition">
+                  ✏️ Editar
+                </button>
+              ` : `<span class="text-xs text-slate-400">—</span>`}
             </td>
           </tr>
         `;
