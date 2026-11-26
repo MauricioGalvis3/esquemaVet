@@ -74,7 +74,16 @@ const App = {
       } else if (['users', 'pets', 'vaccinations'].includes(event.field)) {
         // Si la colección remota en Firestore tiene documentos, sincronizar en tiempo real
         if (event.docs.length > 0) {
-          this.db[event.field] = event.docs;
+          if (event.field === 'users') {
+            // Filtrar documentos válidos y fusionar con cuentas base para evitar pérdida de acceso demo/admin
+            const validRemoteUsers = event.docs.filter(u => u && (u.email || u.document) && u.role);
+            const mergedMap = new Map();
+            window.DataStore.getSeedUsers().forEach(su => mergedMap.set(su.id, su));
+            validRemoteUsers.forEach(ru => mergedMap.set(ru.id, ru));
+            this.db.users = Array.from(mergedMap.values());
+          } else {
+            this.db[event.field] = event.docs;
+          }
           window.DataStore.saveData(this.db);
 
           // Mantener sincronizada la referencia del usuario actual si cambió
@@ -515,7 +524,8 @@ const App = {
     const rememberMe = document.getElementById('login-remember')?.checked;
 
     const user = this.db.users.find(
-      u => u.email.toLowerCase() === identifier || u.document.toLowerCase() === identifier
+      u => String(u.email || '').trim().toLowerCase() === identifier ||
+           String(u.document || '').trim().toLowerCase() === identifier
     );
 
     if (!user) {
@@ -537,7 +547,14 @@ const App = {
   },
 
   quickAccountSelect(userId) {
-    const user = this.db.users.find(u => u.id === userId);
+    let user = this.db.users.find(u => u.id === userId);
+    if (!user && window.DataStore.getSeedUsers) {
+      const seedMatch = window.DataStore.getSeedUsers().find(u => u.id === userId);
+      if (seedMatch) {
+        this.db.users.push(seedMatch);
+        user = seedMatch;
+      }
+    }
     if (user) {
       user.lastLogin = new Date().toISOString().slice(0, 16).replace('T', ' ');
       window.DataStore.saveData(this.db);
@@ -2750,16 +2767,11 @@ const App = {
     window.GoogleCloudConfig.recordSyncEvent('DB_RESET', 'all_collections', 'Restauración de semilla inicial');
 
     if (window.FirebaseService && window.FirebaseService.isConnected()) {
-      const res = await window.FirebaseService.seedCollections(this.db, false);
+      const res = await window.FirebaseService.seedCollections(this.db, true);
       if (res.seeded) {
         this.showToast(
-          `Semilla inicial cargada en Firebase Firestore (${res.counts.users} usuarios, ${res.counts.pets} mascotas, ${res.counts.vaccinations} biológicos).`,
+          `Semilla inicial cargada y sincronizada en Firebase Firestore (${res.counts.users} usuarios, ${res.counts.pets} mascotas, ${res.counts.vaccinations} biológicos).`,
           'success'
-        );
-      } else if (res.alreadyPopulated) {
-        this.showToast(
-          `Semilla local restablecida. Las colecciones en Firestore ya contienen datos (${res.counts.pets} mascotas, ${res.counts.vaccinations} biológicos).`,
-          'info'
         );
       } else {
         this.showToast(`Semilla local restablecida. No se pudo escribir en Firestore: ${res.error || 'revise reglas de seguridad'}.`, 'error');

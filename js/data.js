@@ -481,6 +481,10 @@ const OcanaGeoPoints = {
 };
 
 const DataStore = {
+  getSeedUsers() {
+    return buildSeedUsers();
+  },
+
   getData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
