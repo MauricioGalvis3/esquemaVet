@@ -218,13 +218,13 @@ const PublicAPIConnector = {
 
 const GoogleCloudConfig = {
   defaultConfig: {
-    enabled: false,
-    projectId: 'esquemavet-ocana-ufpso',
+    enabled: true,
+    projectId: 'esquemavet-9ad22',
     region: 'us-east1',
     apiKey: '',
     publicWebhookUrl: '',
-    authDomain: 'esquemavet-ocana-ufpso.firebaseapp.com',
-    storageBucket: 'esquemavet-ocana-ufpso.appspot.com'
+    authDomain: 'esquemavet-9ad22.firebaseapp.com',
+    storageBucket: 'esquemavet-9ad22.firebasestorage.app'
   },
 
   collections: {

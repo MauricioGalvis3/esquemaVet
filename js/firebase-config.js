@@ -1,24 +1,18 @@
 /**
  * ============================================================================
  * EsquemaVet Ocaña - Configuración Aislada de Firebase Firestore
+ * Proyecto Firebase: esquemavet-9ad22
  * ============================================================================
- * INSTRUCCIONES:
- * 1. Ingresa a Firebase Console (https://console.firebase.google.com/)
- * 2. Selecciona tu proyecto -> Configuración del proyecto -> Tus apps (Web)
- * 3. Reemplaza los valores "TU_..." por tus credenciales reales de Firebase.
- *
- * Mientras los valores conserven "TU_..." o estén vacíos, el aplicativo
- * funcionará automáticamente en Modo Híbrido con respaldo local (localStorage)
- * sin romperse.
  */
 
 window.FIREBASE_CONFIG = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROJECT_ID.firebaseapp.com",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_PROJECT_ID.appspot.com",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyBWOQYOGD-ms2poR04a40tCHpbn6Uwzwjc",
+  authDomain: "esquemavet-9ad22.firebaseapp.com",
+  projectId: "esquemavet-9ad22",
+  storageBucket: "esquemavet-9ad22.firebasestorage.app",
+  messagingSenderId: "1092794922203",
+  appId: "1:1092794922203:web:f6ce67240324eb16f4c8fe",
+  measurementId: "G-R7TDVMX953"
 };
 
 /**
